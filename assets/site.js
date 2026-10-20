@@ -185,8 +185,8 @@ function blackScholes(S, K, T, sigma, r) {
   document.addEventListener('click', (e) => { if (!e.target.closest?.('.hc-word')) words.forEach((w) => w.classList.remove('is-open')); });
   addEventListener('keydown', (e) => { if (e.key === 'Escape') { words.forEach((w) => w.classList.remove('is-open')); document.activeElement?.closest?.('.hc-word')?.blur(); } });
 
-  // ---------- Work list: a small framed preview trails the cursor (desktop with a mouse) ----------
-  // Built once the list is near the screen, so phones and quick visits never load the pictures.
+  // ---------- Work list: the project covers trail the cursor (desktop with a mouse) ----------
+  // Built once the list is near the screen, so phones and quick visits never load the covers.
   const works = document.querySelector('.works');
   const rows = [...document.querySelectorAll('.work[data-preview]')];
   if (works && rows.length && matchMedia('(hover: hover) and (pointer: fine)').matches) {

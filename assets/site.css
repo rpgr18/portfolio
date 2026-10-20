@@ -606,17 +606,17 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
 .ed-more:hover { color: var(--strong); }
 .ed-more:hover svg { translate: 2px -2px; }
 
-/* The peek: a small framed preview that trails the cursor over the list (desktop only, built by site.js).
-   Moving to another row slides the next project up through the frame. */
+/* The peek: the project covers, framed, trailing the cursor over the list (desktop only, built by site.js).
+   Moving to another row slides the next cover up through the frame. */
 .peek {
-  position: fixed; left: 0; top: 0; z-index: 15; width: clamp(240px, 20vw, 320px); aspect-ratio: 1.84; overflow: hidden; pointer-events: none;
-  border-radius: 10px; background: #0e1012; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06), 0 30px 60px -24px rgb(0 0 0 / 0.45);
+  position: fixed; left: 0; top: 0; z-index: 15; width: clamp(300px, 26vw, 420px); aspect-ratio: 1.913; overflow: hidden; pointer-events: none;
+  border-radius: 10px; background: #f1efe9; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06), 0 30px 60px -24px rgb(0 0 0 / 0.45);
   opacity: 0; scale: 0.86; transition: opacity 0.35s var(--ease), scale 0.6s var(--appear-ease); will-change: transform;
 }
 :root[data-theme="dark"] .peek { box-shadow: 0 0 0 1px var(--line), 0 30px 60px -24px rgb(0 0 0 / 0.7); }
 .peek.is-on { opacity: 1; scale: 1; }
 .peek-strip { display: grid; translate: 0 calc(var(--i, 0) * -100% / var(--n, 7)); transition: translate 0.75s cubic-bezier(0.65, 0, 0.15, 1); }
-.peek-strip img { display: block; width: 100%; aspect-ratio: 1.84; object-fit: cover; }
+.peek-strip img { display: block; width: 100%; aspect-ratio: 1.913; object-fit: cover; }
 @media (prefers-reduced-motion: reduce) { .peek { scale: 1; } .peek-strip { transition: none; } }
 
 /* Demos: one framed panel; the picker on the left, one live demo at a time on the right */
