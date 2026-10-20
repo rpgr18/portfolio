@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=ecee6442">
+  <link rel="stylesheet" href="../assets/site.css?v=df2a03c5">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -81,10 +81,10 @@
   <div class="page">
     <main class="cs" id="main" tabindex="-1">
       <header class="cs-head">
-        <a class="cs-back" href="../index.html#projects"><svg aria-hidden="true"><use href="#i-arrow"/></svg>All work</a>
+        <a class="cs-back" href="../index.html#projects"><svg aria-hidden="true"><use href="#i-arrow"/></svg>Projects</a>
         <p class="cs-index"><span>02 / 07</span><span>2026</span><a class="stars" href="https://github.com/rpgr18/marine-seismic-deep-learning/stargazers" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-star"/></svg>2 stars on GitHub</a></p>
         <h1 style="view-transition-name: t-marine-seismic">Marine Seismic Deep Learning</h1>
-        <p class="cs-lede">Faults and horizons in seismic surveys, found by a model trained on zero manual labels.</p>
+        <p class="cs-lede">Fault and horizon detection for marine seismic surveys, with a deep-learning fault detector trained on zero manual labels.</p>
       </header>
       <figure class="cs-cover">
         <img class="visual cover" src="../img/seismic/hero.webp" alt="Seismic cross-sections with the seafloor horizon traced by the model" width="2000" height="1045" fetchpriority="high">
@@ -94,6 +94,7 @@
         <div><dt>Contributors</dt><dd>João Luiz Godoy, Lenny Lukach, Ryan Greene</dd></div>
         <div><dt>Timeline</dt><dd>Spring 2026</dd></div>
         <div><dt>Stack</dt><dd>Python · PyTorch · TorchVision · segyio · ObsPy · SciPy</dd></div>
+        <div class="full"><dt>Outcome</dt><dd>Faults detected at F1 0.60, about 100× faster than the classical pipeline; the seafloor horizon traced to a 5.6 m mean absolute error, 95.4% within ±15 m.</dd></div>
       </dl>
       <ul class="cs-metrics" aria-label="Key numbers">
         <li><b>0.60</b><span>fault-detection F1</span></li>
@@ -229,6 +230,6 @@
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=ecee6442"></script>
+  <script src="../assets/site.js?v=df2a03c5"></script>
 </body>
 </html>

@@ -505,7 +505,7 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
    step lighter, and the photo sits in the line as a pill right after the name. */
 .ed-hero { padding: clamp(40px, 6vw, 96px) 0 0; }
 .ed-sentence {
-  max-width: 21em; font: 400 var(--t-display)/1.12 var(--display); font-optical-sizing: auto;
+  max-width: 23em; font: 400 clamp(1.75rem, 3.9vw, 3.5rem)/1.14 var(--display);   /* a step under --t-display: the About text is a paragraph */ font-optical-sizing: auto;
   letter-spacing: -0.025em; color: var(--muted); text-wrap: balance;
 }
 .ed-sentence strong { font-weight: 400; color: var(--strong); }
@@ -790,6 +790,8 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
 .cs-facts, .cs-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px var(--gap); margin: 0; padding: 22px 0 0; list-style: none; }
 .cs-facts { margin-top: clamp(40px, 5vw, 64px); border-top: 1px solid var(--strong); }
 .cs-facts .wide { grid-column: span 2; }
+.cs-facts .full { grid-column: 1 / -1; }
+.cs-facts .full dd { max-width: 48rem; }
 .cs-facts dt { font: 400 var(--fs-xs)/1.4 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
 .cs-facts dd { margin-top: 5px; font-size: var(--fs-sm); line-height: 1.5; color: var(--text); }
 .cs-metrics { margin-top: 32px; padding-top: 26px; border-top: 1px solid var(--line); }

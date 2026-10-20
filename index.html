@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:ital,wght@0,400;0,500;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="assets/site.css?v=ecee6442">
+  <link rel="stylesheet" href="assets/site.css?v=df2a03c5">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -79,16 +79,16 @@
       <!-- ===== Hero: a profile photo, then the introduction as one sentence of display type ===== -->
       <section class="ed-hero" aria-labelledby="intro">
         <img class="ed-avatar" src="img/avatar.jpg" alt="Ryan Greene" width="384" height="384" fetchpriority="high">
-        <h1 class="ed-sentence" id="intro"><strong>I’m Ryan Greene</strong>, a Computer Science and Mathematics student at <strong class="hc-word" tabindex="0" aria-describedby="hc-nu">Northeastern<span class="hc" id="hc-nu" aria-hidden="true"><span class="hc-top"><img src="img/logos/northeastern.png" alt="" width="40" height="40"><span><span class="hc-t">Northeastern University</span><span class="hc-s">B.S. Computer Science, Minor in Mathematics</span></span></span><span class="hc-b">GPA 3.74 · Dean’s List · Dean’s Scholarship</span><span class="hc-f">Expected Dec 2027 · Boston, MA</span></span></strong>, currently interning at <strong class="hc-word" tabindex="0" aria-describedby="hc-ft">Flow Traders<span class="hc" id="hc-ft" aria-hidden="true"><span class="hc-top"><img src="img/logos/flow-traders.png" alt="" width="40" height="40"><span><span class="hc-t">Flow Traders</span><span class="hc-s">Trading Infrastructure Engineer Intern</span></span></span><span class="hc-b">Automating and monitoring production Linux and Kubernetes infrastructure across the US, Europe and Asia.</span><span class="hc-f">Jul 2026 – Present · Manhattan, NY</span></span></strong> in <span class="hc-word" tabindex="0" aria-describedby="hc-ny">New York<span class="hc" id="hc-ny" aria-hidden="true"><span class="hc-top"><span><span class="hc-t">New York</span><span class="hc-s">Local time</span></span></span><span class="hc-clock"><time class="ny-time"></time></span><span class="hc-f">Manhattan, NY</span></span></span>. Here’s some of what I’ve been building.</h1>
+        <h1 class="ed-sentence" id="intro"><strong>Welcome! My name is Ryan</strong> and I am currently a fourth-year Computer Science and Mathematics student learning to build stuff @ <strong class="hc-word" tabindex="0" aria-describedby="hc-nu">Northeastern University<span class="hc" id="hc-nu" aria-hidden="true"><span class="hc-top"><img src="img/logos/northeastern.png" alt="" width="40" height="40"><span><span class="hc-t">Northeastern University</span><span class="hc-s">B.S. Computer Science, Minor in Mathematics</span></span></span><span class="hc-b">GPA 3.74 · Dean’s List · Dean’s Scholarship</span><span class="hc-f">Expected Dec 2027 · Boston, MA</span></span></strong>. This site is a showcase of some of the things I’ve been working on.</h1>
         <div class="ed-actions">
           <a class="btn btn-primary" href="mailto:greene.ry@northeastern.edu">Get in touch</a>
           <button class="btn btn-secondary" type="button" data-copy="greene.ry@northeastern.edu">Copy email <svg aria-hidden="true"><use href="#i-copy"/></svg></button>
         </div>
         <dl class="ed-facts">
           <div><dt>Based in</dt><dd>New York <time class="ny-time" id="ny-time"></time></dd></div>
-          <div><dt>Studying</dt><dd>CS &amp; Math, Northeastern</dd></div>
-          <div><dt>Currently</dt><dd>Intern, Flow Traders</dd></div>
-          <div><dt>Graduating</dt><dd>December 2027</dd></div>
+          <div><dt>Studying</dt><dd>CS &amp; Math at Northeastern</dd></div>
+          <div><dt>Currently</dt><dd>@ Flow Traders</dd></div>
+          <div><dt>Graduating</dt><dd>Dec 2027</dd></div>
         </dl>
       </section>
 
@@ -102,7 +102,7 @@
             <li><a class="work" href="work/matching-engine.html" data-preview="img/matching-engine/cover.webp">
               <span class="work-n">01</span>
               <span class="work-t">Matching Engine</span>
-              <span class="work-d">A C++ order-matching engine that handles 56 million requests a second</span>
+              <span class="work-d">A price-time priority limit order book in C++20, fuzzed against a reference model, with a NASDAQ ITCH 5.0 feed handler and a live demo that runs in your browser.</span>
               <span class="work-k">C++20</span>
               <span class="work-y">2026</span>
               <svg class="work-go" aria-hidden="true"><use href="#i-arrow"/></svg>
@@ -110,7 +110,7 @@
             <li><a class="work" href="work/marine-seismic.html" data-preview="img/seismic/cover.webp">
               <span class="work-n">02</span>
               <span class="work-t">Marine Seismic Deep Learning</span>
-              <span class="work-d">Faults and horizons in seismic surveys, found by a model trained on zero manual labels</span>
+              <span class="work-d">Fault and horizon detection for marine seismic surveys, with a deep-learning fault detector trained on zero manual labels.</span>
               <span class="work-k">PyTorch</span>
               <span class="work-y">2026</span>
               <svg class="work-go" aria-hidden="true"><use href="#i-arrow"/></svg>
@@ -118,7 +118,7 @@
             <li><a class="work" href="work/dsa-cli.html" data-preview="img/dsa-cli/cover.webp">
               <span class="work-n">03</span>
               <span class="work-t">dsa-cli</span>
-              <span class="work-d">The NeetCode 150 in your terminal, with graded Big-O and spaced repetition</span>
+              <span class="work-d">The NeetCode 150 in your terminal, with graded Big-O and spaced repetition for the problems you found hard.</span>
               <span class="work-k">Python</span>
               <span class="work-y">2026</span>
               <svg class="work-go" aria-hidden="true"><use href="#i-arrow"/></svg>
@@ -126,15 +126,15 @@
             <li><a class="work" href="work/surfpy-api.html" data-preview="img/surfpy/cover.webp">
               <span class="work-n">04</span>
               <span class="work-t">SurfPy API</span>
-              <span class="work-d">Surf forecasts, buoys and tides for any coordinate, over REST</span>
+              <span class="work-d">A Flask REST API for surf: wave-model forecasts, the nearest NOAA buoys and tide predictions for any coordinate.</span>
               <span class="work-k">Python · Flask</span>
               <span class="work-y">2024</span>
               <svg class="work-go" aria-hidden="true"><use href="#i-arrow"/></svg>
             </a></li>
             <li><a class="work" href="work/options-pricing.html" data-preview="img/options/cover.webp">
               <span class="work-n">05</span>
-              <span class="work-t">Options Pricing Workbench</span>
-              <span class="work-d">Seven pricing engines and their error, measured side by side</span>
+              <span class="work-t">Options Pricing &amp; Greeks Workbench</span>
+              <span class="work-d">Seven pricing engines side by side, with Greeks in trading units and implied vol from real option chains.</span>
               <span class="work-k">Python · JS</span>
               <span class="work-y">2026</span>
               <svg class="work-go" aria-hidden="true"><use href="#i-arrow"/></svg>
@@ -142,7 +142,7 @@
             <li><a class="work" href="work/portfolio-optimizer.html" data-preview="img/portfolio/cover.webp">
               <span class="work-n">06</span>
               <span class="work-t">Portfolio Construction Workbench</span>
-              <span class="work-d">Seven allocators, scored against a known truth</span>
+              <span class="work-d">Seven allocators and six covariance estimators on the same inputs, every answer checked by its KKT residual.</span>
               <span class="work-k">Python · JS</span>
               <span class="work-y">2026</span>
               <svg class="work-go" aria-hidden="true"><use href="#i-arrow"/></svg>
@@ -150,7 +150,7 @@
             <li><a class="work" href="work/papertrade-sim.html" data-preview="img/papertrade/cover.webp">
               <span class="work-n">07</span>
               <span class="work-t">Java Paper-Trading Simulator</span>
-              <span class="work-d">Portfolios on real daily prices, with a text menu and a Swing GUI</span>
+              <span class="work-d">Build portfolios on real daily prices, then value, rebalance and plot them from a text menu or a Swing GUI.</span>
               <span class="work-k">Java</span>
               <span class="work-y">2024</span>
               <svg class="work-go" aria-hidden="true"><use href="#i-arrow"/></svg>
@@ -165,8 +165,8 @@
         <header class="ed-head"><span class="ed-n">02</span><h2 id="l-demos">Live demos</h2></header>
         <div class="ed-body demo-box">
           <div class="demo-picker" role="tablist" aria-label="Demos" aria-orientation="vertical">
-            <button type="button" role="tab" id="tab-cli" aria-controls="cli-demo" aria-selected="true"><span class="pick-t">dsa-cli</span><span class="pick-d">A session on one problem, replayed. Pick a command.</span></button>
-            <button type="button" role="tab" id="tab-pricer" aria-controls="pricer" aria-selected="false" tabindex="-1"><span class="pick-t">Options pricer</span><span class="pick-d">Drag the sliders to reprice a European option and its Greeks.</span></button>
+            <button type="button" role="tab" id="tab-cli" aria-controls="cli-demo" aria-selected="true"><span class="pick-t">dsa-cli</span><span class="pick-d">For interview prep I built dsa-cli, the NeetCode 150 in your terminal. Here’s a session on one problem.</span></button>
+            <button type="button" role="tab" id="tab-pricer" aria-controls="pricer" aria-selected="false" tabindex="-1"><span class="pick-t">Options pricer</span><span class="pick-d">Lately I’ve been most interested in markets and the systems that run them. Here’s a live piece of a recent project: an options pricer you can play with.</span></button>
             <a class="pick-ext" href="https://rpgr18.github.io/matching-engine/" target="_blank" rel="noopener"><span class="pick-t">Matching engine <svg aria-hidden="true"><use href="#i-arrow"/></svg></span><span class="pick-d">A live order book you can trade against, compiled to WebAssembly.</span></a>
           </div>
           <div class="demo-stage">
@@ -256,7 +256,7 @@
                   </div>
                   <p class="xp-when"><span class="xp-date">Jul 2026 – Present</span><span class="xp-place">Manhattan, NY</span></p>
                 </div>
-                <p class="xp-sum">Automating and monitoring production Linux and Kubernetes infrastructure across the US, Europe and Asia.</p>
+                <p class="xp-sum">Building automation and monitoring for trading infrastructure across the US, Europe and Asia.</p>
                 <p class="xp-tech"><span class="sr-only">Technologies: </span>Python · Linux · Kubernetes · Docker · Airflow · Ansible · AWX · Terraform · ArgoCD · Bamboo · Prometheus · Mimir · Grafana · PagerDuty · Jira · Akeyless</p>
               </div>
             </li>
@@ -365,8 +365,8 @@
       <section class="ed-section ed-contact" id="contact" aria-labelledby="l-contact-label">
         <header class="ed-head"><span class="ed-n">06</span><h2 id="l-contact-label">Contact</h2></header>
         <div class="ed-body">
-          <p class="ed-big" id="l-contact">Let’s <em>talk.</em></p>
-          <p class="ed-contact-text">Email is the fastest way to reach me, about a role, a project, or anything on this page.</p>
+          <p class="ed-big" id="l-contact">Get in <em>touch</em></p>
+          <p class="ed-contact-text">Email is the fastest way to reach me. Happy to talk trading tech, fintech, or anything on this page.</p>
           <div class="ed-email">
             <a href="mailto:greene.ry@northeastern.edu">greene.ry@northeastern.edu <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
             <button class="btn btn-secondary" type="button" data-copy="greene.ry@northeastern.edu">Copy <svg aria-hidden="true"><use href="#i-copy"/></svg></button>
@@ -387,6 +387,6 @@
     </footer>
   </div>
 
-  <script src="assets/site.js?v=ecee6442"></script>
+  <script src="assets/site.js?v=df2a03c5"></script>
 </body>
 </html>
