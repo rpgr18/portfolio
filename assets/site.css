@@ -606,21 +606,18 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
 .ed-more:hover { color: var(--strong); }
 .ed-more:hover svg { translate: 2px -2px; }
 
-/* The plate: one still frame under the section label, scrolling with it. Hovering a row dissolves
-   that project's cover in, settling from a slight zoom; it never moves, and holds the last one. */
-.plate { display: none; }
-@media (min-width: 56.01rem) {
-  .plate {
-    position: relative; display: block; margin-top: 28px; aspect-ratio: 1.913; overflow: hidden;
-    border-radius: 10px; background: var(--card-2); box-shadow: 0 0 0 1px var(--line);
-  }
-  .plate img {
-    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-    opacity: 0; scale: 1.06; transition: opacity 0.9s var(--ease), scale 1.6s var(--appear-ease);
-  }
-  .plate img.is-on { opacity: 1; scale: 1; }
+/* The peek: a small framed preview that trails the cursor over the list (desktop only, built by site.js).
+   Moving to another row slides the next project up through the frame. */
+.peek {
+  position: fixed; left: 0; top: 0; z-index: 15; width: clamp(240px, 20vw, 320px); aspect-ratio: 1.84; overflow: hidden; pointer-events: none;
+  border-radius: 10px; background: #0e1012; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06), 0 30px 60px -24px rgb(0 0 0 / 0.45);
+  opacity: 0; scale: 0.86; transition: opacity 0.35s var(--ease), scale 0.6s var(--appear-ease); will-change: transform;
 }
-@media (prefers-reduced-motion: reduce) { .plate img { scale: 1; transition: opacity 0.3s linear; } }
+:root[data-theme="dark"] .peek { box-shadow: 0 0 0 1px var(--line), 0 30px 60px -24px rgb(0 0 0 / 0.7); }
+.peek.is-on { opacity: 1; scale: 1; }
+.peek-strip { display: grid; translate: 0 calc(var(--i, 0) * -100% / var(--n, 7)); transition: translate 0.75s cubic-bezier(0.65, 0, 0.15, 1); }
+.peek-strip img { display: block; width: 100%; aspect-ratio: 1.84; object-fit: cover; }
+@media (prefers-reduced-motion: reduce) { .peek { scale: 1; } .peek-strip { transition: none; } }
 
 /* Demos: one framed panel; the picker on the left, one live demo at a time on the right */
 .demo-box { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); margin-top: 28px; border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
