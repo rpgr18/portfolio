@@ -185,45 +185,6 @@ function blackScholes(S, K, T, sigma, r) {
   document.addEventListener('click', (e) => { if (!e.target.closest?.('.hc-word')) words.forEach((w) => w.classList.remove('is-open')); });
   addEventListener('keydown', (e) => { if (e.key === 'Escape') { words.forEach((w) => w.classList.remove('is-open')); document.activeElement?.closest?.('.hc-word')?.blur(); } });
 
-  // ---------- Work list: the project covers trail the cursor (desktop with a mouse) ----------
-  // Built once the list is near the screen, so phones and quick visits never load the covers.
-  const works = document.querySelector('.works');
-  const rows = [...document.querySelectorAll('.work[data-preview]')];
-  if (works && rows.length && matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    const build = () => {
-      const peek = document.createElement('div');
-      peek.className = 'peek'; peek.setAttribute('aria-hidden', 'true');
-      peek.innerHTML = '<div class="peek-strip">' + rows.map((r) => `<img src="${r.dataset.preview}" alt="" decoding="async">`).join('') + '</div>';
-      peek.firstChild.style.setProperty('--n', rows.length);
-      document.body.append(peek);
-      const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let tx = 0, ty = 0, x = 0, y = 0, raf = 0, placed = false;
-      // Sits to the right of the cursor, or to its left near the window's edge; eases toward it and leans slightly into the motion
-      const aim = (e) => {
-        const w = peek.offsetWidth, h = peek.offsetHeight;
-        tx = e.clientX + 36; if (tx + w > innerWidth - 20) tx = e.clientX - 36 - w;
-        ty = Math.min(Math.max(e.clientY - h / 2, 84), innerHeight - h - 16);
-      };
-      const tick = () => {
-        const k = still ? 1 : 0.14, dx = (tx - x) * k;
-        x += dx; y += (ty - y) * k;
-        peek.style.transform = `translate(${x}px, ${y}px) rotate(${still ? 0 : Math.max(-3, Math.min(3, dx * 0.25))}deg)`;
-        raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(tick) : 0;
-      };
-      works.addEventListener('pointermove', (e) => {
-        aim(e);
-        if (!placed) { x = tx; y = ty; placed = true; }
-        if (!raf) raf = requestAnimationFrame(tick);
-      });
-      const hide = () => { peek.classList.remove('is-on'); placed = false; };
-      works.addEventListener('pointerleave', hide);
-      addEventListener('pageshow', hide);
-      rows.forEach((r, i) => r.addEventListener('pointerenter', () => { peek.firstChild.style.setProperty('--i', i); peek.classList.add('is-on'); }));
-    };
-    const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); build(); } }, { rootMargin: '600px 0px' });
-    io.observe(works);
-  }
-
   // ---------- Demos: one at a time ----------
   // A tab list: click a demo, or move between them with the arrow, Home and End keys.
   const demoTabs = [...document.querySelectorAll('.demo-picker [role="tab"]')];

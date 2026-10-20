@@ -403,7 +403,6 @@ html:not(.js) .demo { display: none; }
 .article-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
 .article-links .btn { flex: 0 1 auto; }
 
-
 /* =========================================================
    Appear animations (Ultra-style: fade in and rise 10px, staggered)
    The hero and case-study headers play on load; everything else
@@ -471,7 +470,6 @@ html.js.nav-internal :where(.cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs
 /* Switching theme: the new theme is revealed by a growing circle (site.js), so nothing else animates */
 html.theme-switching::view-transition-old(root), html.theme-switching::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-name: none !important; }
-
 
 /* =========================================================
    Home
@@ -605,19 +603,6 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
 .ed-more svg { width: 14px; height: 14px; rotate: -45deg; transition: translate 0.25s var(--ease); }
 .ed-more:hover { color: var(--strong); }
 .ed-more:hover svg { translate: 2px -2px; }
-
-/* The peek: the project covers, framed, trailing the cursor over the list (desktop only, built by site.js).
-   Moving to another row slides the next cover up through the frame. */
-.peek {
-  position: fixed; left: 0; top: 0; z-index: 15; width: clamp(300px, 26vw, 420px); aspect-ratio: 1.913; overflow: hidden; pointer-events: none;
-  border-radius: 10px; background: #f1efe9; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06), 0 30px 60px -24px rgb(0 0 0 / 0.45);
-  opacity: 0; scale: 0.86; transition: opacity 0.35s var(--ease), scale 0.6s var(--appear-ease); will-change: transform;
-}
-:root[data-theme="dark"] .peek { box-shadow: 0 0 0 1px var(--line), 0 30px 60px -24px rgb(0 0 0 / 0.7); }
-.peek.is-on { opacity: 1; scale: 1; }
-.peek-strip { display: grid; translate: 0 calc(var(--i, 0) * -100% / var(--n, 7)); transition: translate 0.75s cubic-bezier(0.65, 0, 0.15, 1); }
-.peek-strip img { display: block; width: 100%; aspect-ratio: 1.913; object-fit: cover; }
-@media (prefers-reduced-motion: reduce) { .peek { scale: 1; } .peek-strip { transition: none; } }
 
 /* Demos: one framed panel; the picker on the left, one live demo at a time on the right */
 .demo-box { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); margin-top: 28px; border: 1px solid var(--line); border-radius: 20px; overflow: hidden; }
