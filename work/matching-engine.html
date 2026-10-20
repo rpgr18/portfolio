@@ -5,23 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Matching Engine — Ryan Greene</title>
   <meta name="description" content="A C++20 limit order book and matching engine: 56M requests a second per core, fuzzed against a reference model, with a NASDAQ ITCH 5.0 feed handler and a live WebAssembly demo.">
+  <link rel="canonical" href="https://rpgr18.github.io/portfolio/work/matching-engine.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Ryan Greene">
+  <meta property="og:title" content="Matching Engine">
+  <meta property="og:description" content="A C++20 limit order book and matching engine: 56M requests a second per core, fuzzed against a reference model, with a NASDAQ ITCH 5.0 feed handler and a live WebAssembly demo.">
+  <meta property="og:url" content="https://rpgr18.github.io/portfolio/work/matching-engine.html">
+  <meta property="og:image" content="https://rpgr18.github.io/portfolio/img/og/matching-engine.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Cover for Matching Engine">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#ffffff">
   <link rel="icon" href="../favicon.ico" sizes="32x32">
-  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../favicon.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="../apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=06b25a76">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
+  <link rel="stylesheet" href="../assets/site.css?v=ecee6442">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
     try { if (localStorage.getItem('theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
-    // Arriving from another project page: skip the fade-ins (site.css), the page cross-fades instead
-    if (location.pathname.includes('/work/') && document.referrer.startsWith(location.origin) && document.referrer.includes('/work/') && document.referrer !== location.href) document.documentElement.classList.add('nav-internal');
-    // Wide screens show projects as a sheet over the home page instead (site.js); ?page keeps this one
-    if (matchMedia('(min-width: 75rem)').matches && !location.search) location.replace('../#work/' + location.pathname.split('/').pop().replace(/\.html$/, ''));
+    // Arriving from another page of this site: skip the fade-ins (site.css), the page cross-fades instead
+    if (document.referrer.startsWith(location.origin) && document.referrer !== location.href) document.documentElement.classList.add('nav-internal');
   </script>
 </head>
 <body data-page="work">
@@ -32,7 +41,7 @@
     <defs>
       <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.4 12 4l8 6.4V19a1 1 0 0 1-1 1h-4.25v-5.5h-5.5V20H5a1 1 0 0 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
       <symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="7" height="7" rx="1.75"/><rect x="13" y="4" width="7" height="7" rx="1.75"/><rect x="4" y="13" width="7" height="7" rx="1.75"/><rect x="13" y="13" width="7" height="7" rx="1.75"/></g></symbol>
-      <symbol id="i-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16"/><path d="m4.5 15.5 4.5-5 3.5 3 7-8"/></g></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="3.5"/><path d="M10.25 9.2v5.6l4.6-2.8z"/></g></symbol>
       <symbol id="i-briefcase" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M9 7.5V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5M3.5 12.5h17"/></g></symbol>
       <symbol id="i-layers" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="m12 4 8 4.5-8 4.5-8-4.5Z"/><path d="m4 12.5 8 4.5 8-4.5"/><path d="m4 16.5 8 4.5 8-4.5"/></g></symbol>
       <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4.5 7.5 7.5 5.5 7.5-5.5"/></g></symbol>
@@ -49,59 +58,66 @@
     </defs>
   </svg>
 
-  <!-- Nav: number keys 1–6 jump to each section -->
-  <nav class="nav" aria-label="Sections" style="--active: 3">
-    <ul>
-      <li><a class="nav-link" href="../index.html" data-key="1" aria-label="Home"><svg aria-hidden="true"><use href="#i-home"/></svg><span class="tip" aria-hidden="true">Home <kbd>1</kbd></span></a></li>
-      <li><a class="nav-link" href="../index.html#pricer" data-key="2" aria-label="Option pricer"><svg aria-hidden="true"><use href="#i-chart"/></svg><span class="tip" aria-hidden="true">Pricer <kbd>2</kbd></span></a></li>
-      <li><a class="nav-link" href="../index.html#experience" data-key="3" aria-label="Experience"><svg aria-hidden="true"><use href="#i-briefcase"/></svg><span class="tip" aria-hidden="true">Experience <kbd>3</kbd></span></a></li>
-      <li><a class="nav-link" href="../index.html#projects" data-key="4" aria-label="Projects" aria-current="true"><svg aria-hidden="true"><use href="#i-grid"/></svg><span class="tip" aria-hidden="true">Projects <kbd>4</kbd></span></a></li>
-      <li><a class="nav-link" href="../index.html#stack" data-key="5" aria-label="Stack"><svg aria-hidden="true"><use href="#i-layers"/></svg><span class="tip" aria-hidden="true">Stack <kbd>5</kbd></span></a></li>
-      <li><a class="nav-link" href="../index.html#contact" data-key="6" aria-label="Contact"><svg aria-hidden="true"><use href="#i-mail"/></svg><span class="tip" aria-hidden="true">Contact <kbd>6</kbd></span></a></li>
-      <li class="nav-sep" aria-hidden="true"></li>
-      <li><button class="nav-link theme-toggle" type="button" aria-label="Switch to dark theme"><svg class="i-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="i-sun" aria-hidden="true"><use href="#i-sun"/></svg><span class="tip" aria-hidden="true">Theme <kbd>T</kbd></span></button></li>
-    </ul>
-  </nav>
+  <!-- Top bar: number keys 1–5 jump to each section, T switches the theme -->
+  <header class="topbar">
+    <div class="topbar-in">
+      <a class="tb-name" href="../index.html">Ryan Greene</a>
+      <p class="tb-status"><span class="ed-dot" aria-hidden="true"></span>Open to opportunities</p>
+      <nav class="nav" aria-label="Sections">
+        <ul class="nav-list" id="nav-list">
+          <li><a class="nav-link" href="../index.html#projects" data-key="1" aria-current="true">Work</a></li>
+          <li><a class="nav-link" href="../index.html#demos" data-key="2">Demos</a></li>
+          <li><a class="nav-link" href="../index.html#experience" data-key="3">Experience</a></li>
+          <li><a class="nav-link" href="../index.html#stack" data-key="4">Stack</a></li>
+          <li><a class="nav-link" href="../index.html#contact" data-key="5">Contact</a></li>
+        </ul>
+      </nav>
+      <button class="tb-btn theme-toggle" type="button" aria-label="Switch to dark theme"><svg class="i-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="i-sun" aria-hidden="true"><use href="#i-sun"/></svg></button>
+      <button class="tb-btn tb-menu" type="button" aria-expanded="false" aria-controls="nav-list"><span>Menu</span></button>
+    </div>
+  </header>
 
-  <div class="page work-layout">
-    <aside class="work-list" aria-labelledby="wl-heading">
-      <h2 class="wl-title" id="wl-heading">My work</h2>
-      <div class="wl-groups">
-        <h3 class="wl-group" id="wl-markets">Markets</h3>
-        <ul class="wl-items" aria-labelledby="wl-markets">
-          <li><span class="wl-shade" aria-hidden="true"></span><a class="wl-item" href="matching-engine.html" aria-current="page"><span class="wl-name">Matching Engine</span><span class="wl-sub">A C++ order book at 56M requests/s</span></a></li>
-          <li><a class="wl-item" href="portfolio-optimizer.html"><span class="wl-name">Portfolio Construction Workbench</span><span class="wl-sub">Allocators scored against a known truth</span></a></li>
-          <li><a class="wl-item" href="options-pricing.html"><span class="wl-name">Options Pricing &amp; Greeks Workbench</span><span class="wl-sub">Seven pricing engines, measured</span></a></li>
-          <li><a class="wl-item" href="papertrade-sim.html"><span class="wl-name">Java Paper-Trading Simulator</span><span class="wl-sub">Portfolios on real daily prices</span></a></li>
-        </ul>
-        <h3 class="wl-group" id="wl-research">Research</h3>
-        <ul class="wl-items" aria-labelledby="wl-research">
-          <li><a class="wl-item" href="marine-seismic.html"><span class="wl-name">Marine Seismic Deep Learning</span><span class="wl-sub">Fault and horizon detection from SEG-Y</span></a></li>
-        </ul>
-        <h3 class="wl-group" id="wl-tools">Tools</h3>
-        <ul class="wl-items" aria-labelledby="wl-tools">
-          <li><a class="wl-item" href="dsa-cli.html"><span class="wl-name">dsa-cli</span><span class="wl-sub">The NeetCode 150 in your terminal</span></a></li>
-          <li><a class="wl-item" href="surfpy-api.html"><span class="wl-name">SurfPy API</span><span class="wl-sub">Surf forecasts over REST</span></a></li>
-        </ul>
-      </div>
-    </aside>
-
-    <div class="work-main">
-      <main class="article" id="main" tabindex="-1">
-        <a class="back" href="../index.html#projects"><svg aria-hidden="true"><use href="#i-arrow"/></svg>Projects</a>
-        <article>
-          <img class="visual cover cover--framed" src="../img/matching-engine/cover.webp" alt="Cover for the matching engine: “56M requests a second, checked against a model.” 56M requests a second on one core, 70 ns p99 latency, 36M fuzzed requests with no differences and 287 tests, beside the live order book’s depth ladder" width="2000" height="1045">
-          <h1>Matching Engine</h1>
-          <dl class="facts">
-            <div><dt>Type</dt><dd>Open source, MIT</dd></div>
-            <div><dt>Timeline</dt><dd>Oct 2026</dd></div>
-            <div><dt>Stack</dt><dd>C++20 · CMake · GoogleTest · WebAssembly (Emscripten) · NASDAQ ITCH 5.0</dd></div>
-            <div><dt>Outcome</dt><dd>56M requests a second on one core with a 70&nbsp;ns p99, no differences from a reference model over 36M fuzzed requests, and a real NASDAQ trading day of 368M messages rebuilt in 25.5&nbsp;s.</dd></div>
-          </dl>
+  <div class="page">
+    <main class="cs" id="main" tabindex="-1">
+      <header class="cs-head">
+        <a class="cs-back" href="../index.html#projects"><svg aria-hidden="true"><use href="#i-arrow"/></svg>All work</a>
+        <p class="cs-index"><span>01 / 07</span><span>2026</span></p>
+        <h1 style="view-transition-name: t-matching-engine">Matching Engine</h1>
+        <p class="cs-lede">A C++ order-matching engine that handles 56 million requests a second.</p>
+      </header>
+      <figure class="cs-cover">
+        <img class="visual cover" src="../img/matching-engine/hero.webp" alt="The live order book in the matching engine’s browser demo: asks in red above bids in green, with a spread of 0.01" width="2000" height="1045" fetchpriority="high">
+      </figure>
+      <dl class="cs-facts">
+        <div><dt>Type</dt><dd>Open source, MIT</dd></div>
+        <div><dt>Timeline</dt><dd>Oct 2026</dd></div>
+        <div class="wide"><dt>Stack</dt><dd>C++20 · CMake · GoogleTest · WebAssembly (Emscripten) · NASDAQ ITCH 5.0</dd></div>
+      </dl>
+      <ul class="cs-metrics" aria-label="Key numbers">
+        <li><b>56M</b><span>requests a second on one core</span></li>
+        <li><b>70 ns</b><span>p99 latency per request</span></li>
+        <li><b>36M</b><span>fuzzed requests, zero differences</span></li>
+        <li><b>287</b><span>tests</span></li>
+      </ul>
+      <div class="cs-body">
+        <nav class="cs-toc" aria-label="On this page">
+          <p>Contents</p>
+          <ol>
+            <li><a href="#what-it-does">What it does</a></li>
+            <li><a href="#design">Design</a></li>
+            <li><a href="#proving-its-right">Proving it’s right</a></li>
+            <li><a href="#how-fast">How fast</a></li>
+            <li><a href="#a-real-nasdaq-trading-day">A real NASDAQ trading day</a></li>
+            <li><a href="#limits">Limits</a></li>
+            <li><a href="#a-tour-of-the-browser-demo">A tour of the browser demo</a></li>
+            <li><a href="#references">References</a></li>
+          </ol>
+        </nav>
+        <article class="cs-article">
           <div class="prose">
           <p>A matching engine is the core of an exchange: it holds the order book and decides who trades with whom. This one is a price-time priority limit order book in C++20, header-only, with no allocation on the request path, plus a NASDAQ TotalView-ITCH 5.0 feed handler built on the same books. It’s checked against a reference model rather than just tested, and benchmarked rather than described as fast. It also runs in your browser: the engine is compiled to WebAssembly, so you can <a href="https://rpgr18.github.io/matching-engine/" target="_blank" rel="noopener">trade against live synthetic flow</a> and watch your place in the queue move.</p>
 
-          <h2>What it does</h2>
+          <h2 id="what-it-does">What it does</h2>
           <ul>
             <li>Limit, immediate-or-cancel, fill-or-kill, market and post-only orders. Fills print at the resting order’s price, so an aggressor gets any price improvement.</li>
             <li>Cancel and cancel/replace with exchange queue rules: shrinking an order keeps its place, growing it or moving its price sends it to the back.</li>
@@ -109,15 +125,15 @@
             <li>Risk checks for prices outside a band, zero quantities, duplicate ids and a full book, with execution reports and a market-by-price feed out.</li>
           </ul>
 
-          <h2>Design</h2>
+          <h2 id="design">Design</h2>
           <p>Orders live in one preallocated pool of 40-byte slots, linked into a first-in, first-out queue at each price: matching takes from the head, new orders join the tail, and a cancel unlinks in constant time. Finding an order by id uses an open-addressing hash table with Fibonacci hashing, kept at most half full. It deletes by shifting entries back instead of leaving tombstones, so a cancel-heavy flow never degrades it and it never needs a rehash, which would be a latency spike.</p>
           <p>Price levels are a flat array per side indexed by tick, and a 64-way hierarchical bitset finds the next populated level after the best one empties, reading at most two words per layer. Events reach the caller through a template parameter, so every callback inlines: there are no virtual calls, locks, exceptions or allocations while a request is processed. The storage is a pluggable policy, which is how the benchmark compares designs on identical order flow.</p>
 
-          <h2>Proving it’s right</h2>
+          <h2 id="proving-its-right">Proving it’s right</h2>
           <p>Fast and wrong is easy, so most of the testing goes into correctness. A separate reference book, built on <code>std::map</code> and <code>std::list</code> and sharing no code with the real one, is an executable specification of the matching rules. Two of its rules are deliberately written differently, so the two implementations can’t share a mistake. Both books get the same random request stream, including every order type, duplicate and unknown ids, cancels racing fills and a pool small enough to fill up, and after every request their event streams must be identical. A soak run of <strong>36 million requests found no differences</strong>.</p>
           <p>Around that sit 287 GoogleTest tests, each run against all three storage policies; a mutation check that injects eight plausible bugs and confirms the suite catches every one; and AddressSanitizer, UndefinedBehaviorSanitizer and ThreadSanitizer runs in CI, with warnings as errors on GCC, Clang and Apple Clang.</p>
 
-          <h2>How fast</h2>
+          <h2 id="how-fast">How fast</h2>
           <p>Each workload is generated once by a deterministic flow model, a random-walking price with liquidity thickest near the touch, and replayed five times on a fresh book. Every design has to produce bit-identical trades, checked through a running hash, so a faster but wrong one fails the run.</p>
           <div class="table-wrap" tabindex="0" role="region" aria-label="Headline benchmark results">
             <table class="data-table">
@@ -145,7 +161,7 @@
           </figure>
           <p>It also runs as a service: a gateway thread, the engine and a drop-copy thread connected by lock-free single-producer, single-consumer rings. Latency is charged from each request’s <em>scheduled</em> send time, so a stall can’t hide by delaying the requests behind it. Publishing once per batch instead of once per request raised the M2’s sustainable rate from 2M to 5M requests a second; the EPYC sustains 10M at a 0.21 µs median.</p>
 
-          <h2>A real NASDAQ trading day</h2>
+          <h2 id="a-real-nasdaq-trading-day">A real NASDAQ trading day</h2>
           <p>The books also run in reverse. The ITCH 5.0 feed handler rebuilds every instrument’s book from NASDAQ’s public order-by-order feed, mirroring rather than re-matching it, since real books lock and cross during auctions and halts. On the full session of 30 January 2019, 368,366,634 messages across 8,714 instruments, every order reference resolved, every book ended the day empty, and during continuous trading 100% of executions hit the best price and 99.91% hit the front of the queue, as NASDAQ’s price-time rules require. The whole day replays in 25.5 seconds on one M2 Pro core.</p>
           <div class="table-wrap" tabindex="0" role="region" aria-label="Rebuilt books against NASDAQ closing prints">
             <table class="data-table">
@@ -160,10 +176,10 @@
             <p class="caption">Bid × ask one second before the close, against the official auction print.</p>
           </div>
 
-          <h2>Limits</h2>
+          <h2 id="limits">Limits</h2>
           <p>Each book runs on one thread by design, since matching is sequential per instrument; scaling comes from sharding symbols across threads. There’s no FIX or OUCH gateway, journal or recovery, the fast price array needs a bounded price band, and the ITCH handler has been run on one real day and rebuilds NASDAQ’s displayed books only.</p>
 
-          <h2>A tour of the browser demo</h2>
+          <h2 id="a-tour-of-the-browser-demo">A tour of the browser demo</h2>
           <figure>
             <img src="../img/matching-engine/01-terminal.webp" alt="The browser demo: order-flow controls and time and sales on the left, a depth ladder of 12 levels a side in the middle with a spread of 0.01, order entry on the right, and a panel of statistics from the real NASDAQ day" width="1600" height="1000" loading="lazy">
             <figcaption>The engine, compiled to an 86 KB WebAssembly module, running a live book in the page. Synthetic flow from the same model the benchmarks use streams in at an adjustable rate.</figcaption>
@@ -173,7 +189,7 @@
             <figcaption>Your own order rests in the queue like anyone else’s, with its position shown as orders ahead of it fill or cancel. The benchmark replays a million requests through both designs on your machine; here, 2.5× faster than <code>std::map</code>.</figcaption>
           </figure>
 
-          <h2>References</h2>
+          <h2 id="references">References</h2>
           <h3>Order books and market data</h3>
           <ol class="refs">
             <li>Gould, M. D., Porter, M. A., Williams, S., McDonald, M., Fenn, D. J. &amp; Howison, S. D. (2013). Limit order books. <em>Quantitative Finance</em>, 13(11), 1709–1742. <a href="https://doi.org/10.1080/14697688.2013.803148" target="_blank" rel="noopener">doi.org/10.1080/14697688.2013.803148</a></li>
@@ -209,29 +225,24 @@
             <a class="btn btn-secondary" href="https://github.com/rpgr18/matching-engine" target="_blank" rel="noopener">Code on GitHub <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
           </div>
         </article>
-        <nav class="more" aria-labelledby="more-heading">
-          <h2 class="wl-title" id="more-heading">Up next</h2>
-          <ul class="wl-items">
-            <li><a class="wl-item" href="portfolio-optimizer.html"><span class="wl-name">Portfolio Construction Workbench</span><span class="wl-sub">Allocators scored against a known truth</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-            <li><a class="wl-item" href="options-pricing.html"><span class="wl-name">Options Pricing &amp; Greeks Workbench</span><span class="wl-sub">Seven pricing engines, measured</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-            <li><a class="wl-item" href="papertrade-sim.html"><span class="wl-name">Java Paper-Trading Simulator</span><span class="wl-sub">Portfolios on real daily prices</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-            <li><a class="wl-item" href="marine-seismic.html"><span class="wl-name">Marine Seismic Deep Learning</span><span class="wl-sub">Fault and horizon detection from SEG-Y</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-            <li><a class="wl-item" href="dsa-cli.html"><span class="wl-name">dsa-cli</span><span class="wl-sub">The NeetCode 150 in your terminal</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-            <li><a class="wl-item" href="surfpy-api.html"><span class="wl-name">SurfPy API</span><span class="wl-sub">Surf forecasts over REST</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-          </ul>
-        </nav>
-      </main>
-      <footer class="site-foot">
-        <p>© 2026 Ryan Greene</p>
-        <nav aria-label="Elsewhere">
-          <a href="https://github.com/rpgr18" target="_blank" rel="noopener">GitHub</a>
-          <span aria-hidden="true">·</span>
-          <a href="https://www.linkedin.com/in/rpgr18/" target="_blank" rel="noopener">LinkedIn</a>
-        </nav>
-      </footer>
-    </div>
+      </div>
+      <a class="cs-next" href="marine-seismic.html">
+        <span class="cs-next-label">Next project · 02</span>
+        <span class="cs-next-t">Marine Seismic Deep Learning</span>
+        <svg aria-hidden="true"><use href="#i-arrow"/></svg>
+      </a>
+    </main>
+    <footer class="site-foot site-foot--home">
+      <p>© 2026 Ryan Greene</p>
+      <p class="colophon">Set in Newsreader &amp; Inter</p>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/rpgr18" target="_blank" rel="noopener">GitHub</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://www.linkedin.com/in/rpgr18/" target="_blank" rel="noopener">LinkedIn</a>
+      </nav>
+    </footer>
   </div>
 
-  <script src="../assets/site.js?v=06b25a76"></script>
+  <script src="../assets/site.js?v=ecee6442"></script>
 </body>
 </html>

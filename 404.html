@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page not found — Ryan Greene</title>
+  <meta name="robots" content="noindex">
+  <meta name="color-scheme" content="light dark">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
+  <script>
+    // GitHub Pages serves this for any missing address, at any depth, so links are built from the site's root
+    try { if (localStorage.getItem('theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
+    window.SITE_ROOT = location.hostname.endsWith('github.io') ? '/' + location.pathname.split('/')[1] + '/' : '/';
+  </script>
+  <style>
+    /* Self-contained: the site's own stylesheet isn't reliably reachable from an unknown path */
+    :root { --bg: #fff; --text: #171717; --muted: #707070; --line: #e8e8e8; --strong: #0a0a0a; --green: #059669; }
+    :root[data-theme="dark"] { --bg: #0d0d0f; --text: #ededef; --muted: #86868c; --line: #232327; --strong: #fff; --green: #34d399; }
+    * { box-sizing: border-box; margin: 0; }
+    html { background: var(--bg); }
+    body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; color: var(--text); font: 400 0.9375rem/1.6 Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    .wrap { width: min(100%, 1360px); margin: 0 auto; padding: 0 clamp(20px, 4.6vw, 72px); }
+    header .wrap { display: flex; align-items: center; height: 72px; }
+    header a { font-weight: 500; font-size: 0.8125rem; color: var(--strong); text-decoration: none; }
+    main { flex: 1; display: flex; align-items: center; }
+    .n { font: 400 0.75rem/1.4 "DM Mono", monospace; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+    h1 { max-width: 14em; margin-top: 18px; font: 400 clamp(2.5rem, 6vw, 5rem)/1.04 Newsreader, Georgia, serif; letter-spacing: -0.032em; color: var(--strong); text-wrap: balance; }
+    h1 em { font-style: italic; }
+    p.lede { max-width: 32rem; margin-top: 22px; font-size: clamp(1.125rem, 1.45vw, 1.3125rem); line-height: 1.5; color: var(--muted); }
+    .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 36px; }
+    .links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border: 1px solid var(--line); border-radius: 999px; color: var(--text); text-decoration: none; font-weight: 500; transition: border-color 0.2s; }
+    .links a:hover { border-color: var(--muted); }
+    .links a.primary { background: var(--strong); border-color: var(--strong); color: var(--bg); }
+    footer .wrap { padding-bottom: 40px; font-size: 0.8125rem; color: var(--muted); }
+    footer p { padding-top: 22px; border-top: 1px solid var(--line); }
+    ::selection { background: color-mix(in srgb, var(--green) 22%, transparent); }
+  </style>
+</head>
+<body>
+  <header><div class="wrap"><a href="/portfolio/" data-root="">Ryan Greene</a></div></header>
+  <main>
+    <div class="wrap">
+      <p class="n">404 · Page not found</p>
+      <h1>This page doesn’t <em>exist.</em></h1>
+      <p class="lede">It may have moved when the site was redesigned. Everything is still on the home page.</p>
+      <div class="links">
+        <a class="primary" href="/portfolio/#projects" data-root="#projects">See the work</a>
+        <a href="/portfolio/" data-root="">Home</a>
+      </div>
+    </div>
+  </main>
+  <footer><div class="wrap"><p>© 2026 Ryan Greene</p></div></footer>
+  <script>
+    document.querySelectorAll('[data-root]').forEach(function (a) { a.href = window.SITE_ROOT + a.dataset.root; });
+  </script>
+</body>
+</html>

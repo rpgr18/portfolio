@@ -60,11 +60,28 @@ function blackScholes(S, K, T, sigma, r) {
     themeMeta?.setAttribute('content', dark ? '#0d0d0f' : '#ffffff');
     document.querySelectorAll('.theme-toggle').forEach((b) => b.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme'));
   };
-  const toggleTheme = () => {
+  const applyTheme = () => {
     if (root.dataset.theme === 'dark') delete root.dataset.theme;
     else root.dataset.theme = 'dark';
     try { localStorage.setItem('theme', root.dataset.theme || 'light'); } catch {}
     syncTheme();
+  };
+  // The new theme spreads out as a circle from the toggle button (a view transition), where supported
+  const toggleTheme = () => {
+    const button = document.querySelector('.theme-toggle');
+    if (!document.startViewTransition || reduceMotion || !button) { applyTheme(); return; }
+    const r = button.getBoundingClientRect();
+    const x = r.left + r.width / 2, y = r.top + r.height / 2;
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    root.classList.add('theme-switching');
+    const t = document.startViewTransition(applyTheme);
+    t.ready.then(() => {
+      root.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 760, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', pseudoElement: '::view-transition-new(root)' },
+      );
+    }).catch(() => {});
+    t.finished.finally(() => root.classList.remove('theme-switching'));
   };
   document.querySelectorAll('.theme-toggle').forEach((b) => b.addEventListener('click', toggleTheme));
   syncTheme();
@@ -75,10 +92,8 @@ function blackScholes(S, K, T, sigma, r) {
   if (!reduceMotion && 'IntersectionObserver' in window) {
     document.documentElement.classList.add('motion');
     const appearing = document.querySelectorAll([
-      '.hero .clocks', '.hero .avatar-wrap', '.hero-title > *', '.hero .avail', '.hero .status', '.hero .actions > *', '.hero .coords', '.side > .demo',
-      '.flow > .row:not(#projects)', '#projects .row-label', '.cards > .card', '#projects .btn-block', '.flow > .contact', '.site-foot--home',
-      '.article .back', '.article .cover', '.article h1', '.article .stars', '.article .facts', '.article .prose', '.article .article-links', '.article .more',
-      '.work-list',
+      '.ed-avatar', '.ed-sentence', '.ed-actions', '.ed-facts', '.ed-head', '.ed-body', '.works > li', '.site-foot--home',
+      '.cs-head > *', '.cs-cover', '.cs-facts', '.cs-metrics', '.cs-body', '.cs-next',
     ].join(','));
     const loadedAt = performance.now();
     const onScreen = (node) => {
@@ -130,295 +145,78 @@ function blackScholes(S, K, T, sigma, r) {
     });
   }
 
-  // ---------- Market clocks: US, EMEA, APAC ----------
-  // Holidays come from rules (Easter, "third Monday", weekend substitutes), so nothing needs updating yearly.
-  const pad = (n) => String(n).padStart(2, '0');
-  const ymd = (y, m, d) => `${y}-${pad(m)}-${pad(d)}`;
-  const dow = (y, m, d) => new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0 = Sunday
-  const shiftDays = (y, m, d, n) => {
-    const t = new Date(Date.UTC(y, m - 1, d + n));
-    return [t.getUTCFullYear(), t.getUTCMonth() + 1, t.getUTCDate()];
-  };
-  const nthWeekday = (y, m, wd, n) => { // n = -1 for the last one in the month
-    if (n > 0) return 1 + ((wd - dow(y, m, 1) + 7) % 7) + (n - 1) * 7;
-    const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
-    return last - ((dow(y, m, last) - wd + 7) % 7);
-  };
-  const easter = (y) => { // Anonymous Gregorian algorithm
-    const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4;
-    const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
-    const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, mm = Math.floor((a + 11 * h + 22 * l) / 451);
-    return [Math.floor((h + l - 7 * mm + 114) / 31), ((h + l - 7 * mm + 114) % 31) + 1];
-  };
-  const isWeekday = (y, m, d) => { const w = dow(y, m, d); return w > 0 && w < 6; };
-
-  const CALENDARS = {
-    // NYSE: Sat holidays move to Fri (except New Year's), Sun to Mon. Early 1 p.m. closes.
-    nyse(y) {
-      const closed = new Set(), early = new Set();
-      const add = (date) => date && closed.add(ymd(...date));
-      const observed = (m, d, saturdayToFriday = true) => {
-        const w = dow(y, m, d);
-        if (w === 6) return saturdayToFriday ? shiftDays(y, m, d, -1) : null;
-        if (w === 0) return shiftDays(y, m, d, 1);
-        return [y, m, d];
-      };
-      const [em, ed] = easter(y);
-      const thanksgiving = nthWeekday(y, 11, 4, 4);
-      add(observed(1, 1, false));
-      add([y, 1, nthWeekday(y, 1, 1, 3)]);
-      add([y, 2, nthWeekday(y, 2, 1, 3)]);
-      add(shiftDays(y, em, ed, -2));
-      add([y, 5, nthWeekday(y, 5, 1, -1)]);
-      add(observed(6, 19));
-      add(observed(7, 4));
-      add([y, 9, nthWeekday(y, 9, 1, 1)]);
-      add([y, 11, thanksgiving]);
-      add(observed(12, 25));
-      if ([1, 2, 3, 4].includes(dow(y, 7, 3))) early.add(ymd(y, 7, 3));
-      early.add(ymd(y, 11, thanksgiving + 1));
-      if ([1, 2, 3, 4].includes(dow(y, 12, 24))) early.add(ymd(y, 12, 24));
-      return { closed, early };
-    },
-    // Euronext: six fixed closing days, no substitutes. Early 14:05 closes on Dec 24 and 31.
-    euronext(y) {
-      const [em, ed] = easter(y);
-      const closed = new Set([ymd(y, 1, 1), ymd(...shiftDays(y, em, ed, -2)), ymd(...shiftDays(y, em, ed, 1)), ymd(y, 5, 1), ymd(y, 12, 25), ymd(y, 12, 26)]);
-      const early = new Set([24, 31].filter((d) => isWeekday(y, 12, d)).map((d) => ymd(y, 12, d)));
-      return { closed, early };
-    },
-    // ASX: weekend New Year, Australia Day, Christmas and Boxing Day roll to the next weekday. Early 14:10 closes.
-    asx(y) {
-      const closed = new Set();
-      const rollForward = (m, d) => {
-        let date = [y, m, d];
-        while (!isWeekday(...date) || closed.has(ymd(...date))) date = shiftDays(...date, 1);
-        closed.add(ymd(...date));
-      };
-      const [em, ed] = easter(y);
-      rollForward(1, 1);
-      rollForward(1, 26);
-      closed.add(ymd(...shiftDays(y, em, ed, -2)));
-      closed.add(ymd(...shiftDays(y, em, ed, 1)));
-      if (isWeekday(y, 4, 25)) closed.add(ymd(y, 4, 25));
-      closed.add(ymd(y, 6, nthWeekday(y, 6, 1, 2)));
-      rollForward(12, 25);
-      rollForward(12, 26);
-      const early = new Set([24, 31].filter((d) => isWeekday(y, 12, d) && !closed.has(ymd(y, 12, d))).map((d) => ymd(y, 12, d)));
-      return { closed, early };
-    },
-  };
-
-  const MARKETS = {
-    us: { exchange: 'NYSE', city: 'New York', tz: 'America/New_York', zoneLocale: 'en-US', calendar: 'nyse', open: 570, close: 960, earlyClose: 780 },
-    emea: { exchange: 'Euronext', city: 'Amsterdam', tz: 'Europe/Amsterdam', zoneLocale: 'en-GB', calendar: 'euronext', open: 540, close: 1050, earlyClose: 845 },
-    apac: { exchange: 'ASX', city: 'Sydney', tz: 'Australia/Sydney', zoneLocale: 'en-AU', calendar: 'asx', open: 600, close: 960, earlyClose: 850 },
-  };
-  const calendarCache = new Map();
-  const calendarFor = (id, y) => {
-    const cacheKey = `${id}-${y}`;
-    if (!calendarCache.has(cacheKey)) calendarCache.set(cacheKey, CALENDARS[id](y));
-    return calendarCache.get(cacheKey);
-  };
-  const hhmm = (minutes) => `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`;
-  const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-  // Local wall-clock time in a zone -> the real instant (handles DST on both ends)
-  const zoneOffsetMinutes = (date, tz) => {
-    const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
-      timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit',
-    }).formatToParts(date).map((x) => [x.type, x.value]));
-    return (Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second) - date.getTime()) / 60000;
-  };
-  const zonedToInstant = (y, m, d, minutes, tz) => {
-    const wall = Date.UTC(y, m - 1, d, 0, minutes);
-    let t = wall;
-    for (let i = 0; i < 2; i++) t = wall - zoneOffsetMinutes(new Date(t), tz) * 60000;
-    return new Date(t);
-  };
-
-  function marketState(market, now) {
-    const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
-      timeZone: market.tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-    }).formatToParts(now).map((x) => [x.type, x.value]));
-    const y = Number(parts.year), m = Number(parts.month), d = Number(parts.day);
-    const minutes = Number(parts.hour) * 60 + Number(parts.minute);
-    const session = (date) => {
-      const { closed, early } = calendarFor(market.calendar, date[0]);
-      const keyed = ymd(...date);
-      if (!isWeekday(...date) || closed.has(keyed)) return null;
-      return { open: market.open, close: early.has(keyed) ? market.earlyClose : market.close };
-    };
-    const today = session([y, m, d]);
-    const isOpen = !!today && minutes >= today.open && minutes < today.close;
-    let detail;
-    if (isOpen) {
-      detail = `open, closes ${hhmm(today.close)}`;
-    } else if (today && minutes < today.open) {
-      detail = `closed, opens ${hhmm(today.open)}`;
-    } else {
-      for (let n = 1; n <= 10; n++) {
-        const date = shiftDays(y, m, d, n);
-        const next = session(date);
-        if (next) { detail = `closed, opens ${WEEKDAYS[dow(...date)]} ${hhmm(next.open)}`; break; }
-      }
-    }
-    const zone = new Intl.DateTimeFormat(market.zoneLocale, { timeZone: market.tz, timeZoneName: 'short' })
-      .formatToParts(now).find((x) => x.type === 'timeZoneName')?.value || '';
-    // The session to draw on the ring: today's if it hasn't finished, otherwise the next one
-    let span = null;
-    for (let n = 0; n <= 10 && !span; n++) {
-      const date = shiftDays(y, m, d, n);
-      const s = session(date);
-      if (!s || (n === 0 && minutes >= s.close)) continue;
-      span = { start: zonedToInstant(...date, s.open, market.tz), end: zonedToInstant(...date, s.close, market.tz) };
-    }
-    return { isOpen, time: `${parts.hour}:${parts.minute}`, detail: detail || 'closed', zone, span };
-  }
-
-  // Minutes past midnight in Manhattan for an instant, as an angle on a 24-hour dial
-  const nyDial = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-  const dialAngle = (date) => {
-    const p = Object.fromEntries(nyDial.formatToParts(date).map((x) => [x.type, x.value]));
-    return ((Number(p.hour) * 60 + Number(p.minute)) / 1440) * 360;
-  };
-  const RING_C = 72;
-  const polar = (r, deg) => {
-    const a = ((deg - 90) * Math.PI) / 180;
-    return [RING_C + r * Math.cos(a), RING_C + r * Math.sin(a)];
-  };
-  const arcPath = (r, from, to) => {
-    let sweep = to - from;
-    if (sweep <= 0) sweep += 360;
-    const [x0, y0] = polar(r, from);
-    const [x1, y1] = polar(r, from + sweep);
-    return `M${x0.toFixed(2)} ${y0.toFixed(2)}A${r} ${r} 0 ${sweep > 180 ? 1 : 0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
-  };
-
-  const marketEls = [...document.querySelectorAll('[data-market]')];
-  const readout = $('mkt-readout');
-  const rings = document.querySelector('.rings');
-  if (marketEls.length && readout) {
-    const states = {};
-    let pinned = marketEls.find((b) => b.getAttribute('aria-pressed') === 'true') || marketEls[0];
-    let shownText = '';
-    const RING_NOTE = 'Rings: each market’s hours, 24h NY clock';
-    const describe = (id) => `${MARKETS[id].exchange} · ${states[id].detail} ${states[id].zone}`;
-    const setReadout = (text) => {
-      if (text === shownText) return;
-      shownText = text;
-      readout.classList.add('is-swapping');
-      setTimeout(() => { readout.textContent = shownText; readout.classList.remove('is-swapping'); }, 120);
-    };
-    const focusRing = (id) => {
-      if (!rings) return;
-      rings.classList.toggle('has-focus', !!id);
-      rings.querySelectorAll('[data-ring]').forEach((g) => g.classList.toggle('is-focus', g.dataset.ring === id));
-    };
-    const show = (btn) => {
-      marketEls.forEach((b) => b.classList.toggle('is-shown', b === btn && b !== pinned));
-      setReadout(describe(btn.dataset.market));
-      focusRing(btn === pinned && !btn.matches(':hover, :focus-visible') ? null : btn.dataset.market);
-    };
-    const reset = () => {
-      marketEls.forEach((b) => b.classList.remove('is-shown'));
-      setReadout(describe(pinned.dataset.market));
-      focusRing(null);
-    };
-
-    // Now: the pricer chart's green dot, on the selected market's ring at the current time
-    const placeNow = () => {
-      const dot = rings?.querySelector('.ring-now');
-      const ring = rings?.querySelector(`[data-ring="${pinned.dataset.market}"]`);
-      if (!dot || !ring) return;
-      const [x, y] = polar(Number(ring.dataset.r), dialAngle(new Date()));
-      dot.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px)`;
-    };
-    const tick = () => {
+  // ---------- Local time in New York, beside the intro ----------
+  const nyTimes = document.querySelectorAll('.ny-time');
+  if (nyTimes.length) {
+    const fmtNy = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
+    const tickNy = () => {
       const now = new Date();
-      for (const btn of marketEls) {
-        const id = btn.dataset.market;
-        const st = marketState(MARKETS[id], now);
-        states[id] = st;
-        btn.classList.toggle('is-open', st.isOpen);
-        btn.querySelector('.mkt-time').textContent = st.time;
-        btn.setAttribute('aria-label', `${MARKETS[id].city} ${st.time}, ${MARKETS[id].exchange} ${st.detail} ${st.zone}`);
-        const ring = rings?.querySelector(`[data-ring="${id}"]`);
-        if (ring && st.span) {
-          const r = Number(ring.dataset.r);
-          ring.querySelector('.ring-arc').setAttribute('d', arcPath(r, dialAngle(st.span.start), dialAngle(st.span.end)));
-          ring.classList.toggle('is-open', st.isOpen);
-        }
-      }
-      placeNow();
-      if (!shownText) { shownText = describe(pinned.dataset.market); readout.textContent = shownText; }
+      nyTimes.forEach((t) => { t.textContent = fmtNy.format(now); t.dateTime = now.toISOString(); });
     };
-    tick();
-    setInterval(tick, 20000);
-    if (rings) requestAnimationFrame(() => requestAnimationFrame(() => rings.classList.add('is-drawn')));
-
-    for (const btn of marketEls) {
-      btn.addEventListener('mouseenter', () => show(btn));
-      btn.addEventListener('focus', () => show(btn));
-      btn.addEventListener('click', () => {
-        pinned = btn;
-        marketEls.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
-        placeNow();
-        show(btn);
-      });
-    }
-    // Leaving the row puts the pinned city (New York by default) back in the readout
-    const row = marketEls[0].closest('.markets');
-    row.addEventListener('mouseleave', reset);
-    row.addEventListener('focusout', (e) => { if (!row.contains(e.relatedTarget)) reset(); });
-    // Hovering the photo explains the rings
-    const wrap = rings?.closest('.avatar-wrap');
-    if (wrap) {
-      wrap.addEventListener('mouseenter', () => setReadout(RING_NOTE));
-      wrap.addEventListener('mouseleave', reset);
-    }
+    tickNy();
+    setInterval(tickNy, 15000);
   }
 
-  // ---------- Coordinates: decode effect ----------
-  // A fixed number of steps (not a time budget), so a busy or throttled tab plays the whole
-  // effect instead of skipping to the end. The line is pre-scrambled while still invisible and
-  // starts decoding the instant its fade-in begins, so it's moving from the first visible frame.
-  const coords = $('coords');
-  if (coords && !reduceMotion) {
-    const finalText = coords.textContent;
-    const chars = [...finalText];
-    const DIGITS = '0123456789';
-    const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const STEPS = 28;
-    let timer = null;
-    const scrambleFrom = (step) => chars.map((ch, i) => {
-      if (i < Math.floor((step / STEPS) * chars.length)) return ch;
-      if (/[0-9]/.test(ch)) return DIGITS[Math.floor(Math.random() * 10)];
-      if (/[A-Za-z]/.test(ch)) return LETTERS[Math.floor(Math.random() * 26)];
-      return ch;
-    }).join('');
-    const decode = () => {
-      if (timer) return;
-      let step = 0;
-      const tickDecode = () => {
-        step += 1;
-        // Characters lock in left to right; the rest keep cycling
-        coords.textContent = scrambleFrom(step);
-        if (step < STEPS) timer = setTimeout(tickDecode, 42);
-        else { coords.textContent = finalText; timer = null; }
-      };
-      tickDecode();
+  document.querySelector('.ed-sentence')?.addEventListener('animationend', (e) => {
+    if (e.animationName === 'wipe') e.currentTarget.classList.add('is-wiped');
+  });
+
+  // ---------- The sentence's cards ----------
+  // CSS opens a card on hover or focus; a tap toggles it (touch screens don't hover), and a card
+  // that would run off the right edge shifts left to fit
+  const words = [...document.querySelectorAll('.hc-word')];
+  const fit = (word) => {
+    const card = word.querySelector('.hc');
+    if (getComputedStyle(card).position === 'fixed') return;
+    card.style.left = '0px';
+    const over = card.getBoundingClientRect().right - (document.documentElement.clientWidth - 16);
+    if (over > 0) card.style.left = `${-over}px`;
+  };
+  words.forEach((word) => {
+    word.addEventListener('pointerenter', () => fit(word));
+    word.addEventListener('focus', () => fit(word));
+    word.addEventListener('click', (e) => {
+      if (e.target.closest('.hc')) return;
+      const open = !word.classList.contains('is-open');
+      words.forEach((w) => w.classList.remove('is-open'));
+      if (open) { fit(word); word.classList.add('is-open'); }
+    });
+  });
+  document.addEventListener('click', (e) => { if (!e.target.closest?.('.hc-word')) words.forEach((w) => w.classList.remove('is-open')); });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') { words.forEach((w) => w.classList.remove('is-open')); document.activeElement?.closest?.('.hc-word')?.blur(); } });
+
+  // ---------- Work list: the hovered (or focused) row's cover dissolves into the plate ----------
+  const plate = document.querySelectorAll('.plate img');
+  if (plate.length) {
+    document.querySelectorAll('.work').forEach((row, i) => {
+      const show = () => plate.forEach((img, j) => img.classList.toggle('is-on', j === i));
+      row.addEventListener('pointerenter', show);
+      row.addEventListener('focus', show);
+    });
+  }
+
+  // ---------- Demos: one at a time ----------
+  // A tab list: click a demo, or move between them with the arrow, Home and End keys.
+  const demoTabs = [...document.querySelectorAll('.demo-picker [role="tab"]')];
+  if (demoTabs.length) {
+    const select = (tab, focus) => {
+      for (const t of demoTabs) {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        $(t.getAttribute('aria-controls')).hidden = !on;
+      }
+      if (focus) tab.focus();
     };
-    let started = false;
-    const startOnce = () => { if (!started) { started = true; decode(); } };
-    if (document.documentElement.classList.contains('motion')) {
-      coords.textContent = scrambleFrom(0);
-      coords.addEventListener('animationstart', startOnce, { once: true });
-      setTimeout(startOnce, 900); // in case the fade-in never runs
-    } else {
-      startOnce();
-    }
-    coords.addEventListener('mouseenter', decode);
+    demoTabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab, false));
+      tab.addEventListener('keydown', (e) => {
+        const to = { ArrowDown: i + 1, ArrowRight: i + 1, ArrowUp: i - 1, ArrowLeft: i - 1, Home: 0, End: demoTabs.length - 1 }[e.key];
+        if (to === undefined) return;
+        e.preventDefault();
+        select(demoTabs[(to + demoTabs.length) % demoTabs.length], true);
+      });
+    });
   }
 
   // ---------- Pricer ----------
@@ -608,211 +406,96 @@ function blackScholes(S, K, T, sigma, r) {
     play('run', false);   // the page opens on a finished run
   }
 
-  // ---------- Sidebar (home, wide screens) ----------
-  // The hero and pricer stick beside the flow. They're usually taller than the window, so the sidebar
-  // sticks with its bottom edge in view (a negative top) rather than its top, keeping the pricer reachable.
-  const side = document.querySelector('.side');
-  const sideIsSticky = () => !!side && getComputedStyle(side).position === 'sticky';
-  if (side) {
-    // --side-clear (site.css) keeps the bottom clear of the floating nav pill
-    const clear = () => parseFloat(getComputedStyle(side).getPropertyValue('--side-clear')) || 0;
-    const place = () => side.style.setProperty('--side-top', `${Math.min(0, innerHeight - side.offsetHeight - clear())}px`);
-    if ('ResizeObserver' in window) new ResizeObserver(place).observe(side);
-    addEventListener('resize', place);
-    place();
+  // ---------- Top bar ----------
+  // Sticky: it takes a background and a hairline once the page scrolls. On phones the sections fold
+  // into a Menu button. On the home page, the link for the section you're reading is underlined.
+  const topbar = document.querySelector('.topbar');
+  const links = [...document.querySelectorAll('a.nav-link')];
+  if (topbar) {
+    const onScroll = () => topbar.classList.toggle('is-scrolled', scrollY > 4);
+    addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    const menu = topbar.querySelector('.tb-menu');
+    const setMenu = (open) => {
+      topbar.classList.toggle('is-open', open);
+      if (!menu) return;
+      menu.setAttribute('aria-expanded', String(open));
+      menu.querySelector('span').textContent = open ? 'Close' : 'Menu';
+    };
+    menu?.addEventListener('click', () => setMenu(!topbar.classList.contains('is-open')));
+    links.forEach((a) => a.addEventListener('click', () => setMenu(false)));
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
+    document.addEventListener('click', (e) => { if (!topbar.contains(e.target)) setMenu(false); });
   }
-  const inStickySide = (node) => sideIsSticky() && side.contains(node);
-
-  // Scroll to a section. Something in the sticky sidebar has no fixed place on the page, so going to
-  // it means scrolling just far enough for the sidebar's bottom to come into view.
-  const goTo = (target, behavior) => {
-    if (target && inStickySide(target)) {
-      const need = side.offsetHeight - innerHeight + (parseFloat(getComputedStyle(side).getPropertyValue('--side-clear')) || 0);
-      if (need > 0 && scrollY < need) scrollTo({ top: need, behavior });
-      return;
-    }
-    if (target) target.scrollIntoView({ behavior });
-    else scrollTo({ top: 0, behavior });
-  };
-
-  // ---------- Nav: current section on the home page + number-key shortcuts everywhere ----------
-  const links = [...document.querySelectorAll('a.nav-link')];   // the theme toggle is a button, not a section link
-  // The pill's highlight slides to the current section's index
-  const navEl = document.querySelector('.nav');
-  const setActive = (i) => navEl?.style.setProperty('--active', i);
-  navEl?.classList.add('is-instant');
-  setActive(Math.max(0, links.findIndex((a) => a.hasAttribute('aria-current'))));
-  requestAnimationFrame(() => requestAnimationFrame(() => navEl?.classList.remove('is-instant')));
   if (document.body.dataset.page === 'home') {
-    const sections = links.map((a) => (a.hash && a.hash !== '#top' ? document.querySelector(a.hash) : null));
+    // Links from the old project popup (#work/NAME) go to that project's page
+    const legacy = location.hash.match(/^#work\/([\w-]+)$/);
+    if (legacy) location.replace(`work/${legacy[1]}.html`);
+    const sections = links.map((a) => (a.hash ? document.querySelector(a.hash) : null));
     const markCurrent = () => {
       const atBottom = innerHeight + scrollY >= document.documentElement.scrollHeight - 2;
-      let current = 0;
-      sections.forEach((sec, i) => {
-        if (sec && !inStickySide(sec) && sec.getBoundingClientRect().top <= innerHeight * 0.4) current = i;
-      });
+      let current = -1;
+      sections.forEach((sec, i) => { if (sec && sec.getBoundingClientRect().top <= innerHeight * 0.35) current = i; });
       if (atBottom) current = links.length - 1;
-      if (scrollY < 40) current = 0;   // the top of the page is Home, even when Experience starts high up
-      links.forEach((a, i) => {
-        if (i === current) a.setAttribute('aria-current', 'true');
-        else a.removeAttribute('aria-current');
-      });
-      setActive(current);
+      links.forEach((a, i) => (i === current ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
     };
     addEventListener('scroll', markCurrent, { passive: true });
     markCurrent();
-    links.forEach((a, i) => a.addEventListener('click', (e) => {
-      if (!inStickySide(sections[i])) return;
-      e.preventDefault();
-      goTo(sections[i], reduceMotion ? 'auto' : 'smooth');
-    }));
   }
 
-  // ---------- Projects as a sheet over the home page (wide screens) ----------
-  // A project link opens a large <dialog> over the blurred page instead of navigating. Its content
-  // comes from the project's own page (fetched once, then cached), so work/*.html stays the single
-  // source. The address becomes #work/NAME: shareable, reload-safe, and Back closes the sheet.
-  // Moving between projects inside it uses a view transition, so the chip slides and the article
-  // cross-fades just as it does between the standalone pages.
-  const sheet = $('sheet');
-  const wide = matchMedia('(min-width: 75rem)');
-  if (sheet && typeof sheet.showModal === 'function') {
-    const scroller = sheet.querySelector('.sheet-main');
-    const homeTitle = document.title;
-    const pageUrl = (slug) => new URL(`work/${slug}.html`, document.baseURI);
-    const slugOf = (href) => {
-      const url = new URL(href, document.baseURI);
-      return url.origin === location.origin ? url.pathname.match(/\/work\/([\w-]+?)(?:\.html)?$/)?.[1] || null : null;
+  // ---------- Project pages: reading progress along the top bar ----------
+  if (topbar && document.body.dataset.page === 'work') {
+    const progress = () => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      topbar.style.setProperty('--progress', max > 0 ? Math.min(1, scrollY / max).toFixed(4) : 0);
     };
-    const hashSlug = () => location.hash.match(/^#work\/([\w-]+)$/)?.[1] || null;
-    const cache = new Map();
-    const load = (slug) => {
-      if (!cache.has(slug)) {
-        cache.set(slug, fetch(pageUrl(slug)).then((res) => {
-          if (!res.ok) throw new Error(`${res.status}`);
-          return res.text();
-        }).then((html) => {
-          const doc = new DOMParser().parseFromString(html, 'text/html');
-          const article = doc.querySelector('main.article article');
-          const list = doc.querySelector('.work-list');
-          if (!article || !list) throw new Error('not a project page');
-          // Relative links and images were written for work/; make them absolute before moving them here
-          for (const node of doc.querySelectorAll('[src], [href]')) {
-            for (const attr of ['src', 'href']) {
-              const value = node.getAttribute(attr);
-              if (value && !value.startsWith('#') && !/^[a-z][\w+.-]*:/i.test(value)) node.setAttribute(attr, new URL(value, pageUrl(slug)).href);
-            }
-          }
-          return { title: doc.title, article, list };
-        }).catch((err) => { cache.delete(slug); throw err; }));
-      }
-      return cache.get(slug);
-    };
-
-    let current = null;
-    const select = (slug) => {
-      // The list is the same on every project page, so only the chip and aria-current move
-      const list = sheet.querySelector('.work-list');
-      const shade = list.querySelector('.wl-shade');
-      for (const link of list.querySelectorAll('.wl-item')) {
-        const on = slugOf(link.href) === slug;
-        link.toggleAttribute('aria-current', on);
-        if (on) { link.setAttribute('aria-current', 'page'); link.before(shade); }
-      }
-    };
-    const show = async (slug) => {
-      if (sheet.open && slug === current) return;
-      let page;
-      try { page = await load(slug); } catch { location.href = `${pageUrl(slug)}?page`; return; }
-      const apply = () => {
-        if (!sheet.querySelector('.wl-items')) sheet.querySelector('.work-list').replaceWith(document.importNode(page.list, true));
-        select(slug);
-        const article = document.importNode(page.article, true);
-        article.querySelector('h1')?.setAttribute('id', 'sheet-title');
-        sheet.querySelector('article').replaceWith(article);
-        scroller.scrollTop = 0;
-        document.title = page.title;
-        current = slug;
-      };
-      if (!sheet.open) {
-        apply();
-        sheet.classList.remove('is-closing');
-        sheet.showModal();
-      } else if (document.startViewTransition && !reduceMotion && document.visibilityState === 'visible') {
-        document.startViewTransition(apply).ready.catch(() => {});   // a skipped transition still swaps the content
-      } else apply();
-    };
-    // Close with an animation; the history entry, if we pushed one, is popped first
-    const finish = () => {
-      if (!sheet.open || sheet.classList.contains('is-closing')) return;
-      const done = () => {
-        sheet.classList.remove('is-closing');
-        sheet.close();
-        document.title = homeTitle;
-        current = null;
-      };
-      if (reduceMotion) { done(); return; }
-      sheet.classList.add('is-closing');
-      const onEnd = (e) => {
-        if (e.target !== sheet) return;
-        sheet.removeEventListener('animationend', onEnd);
-        done();
-      };
-      sheet.addEventListener('animationend', onEnd);
-    };
-    const close = () => {
-      if (history.state?.sheet) { history.back(); return; }   // popstate finishes the close
-      history.replaceState(null, '', location.pathname + location.search);
-      finish();
-    };
-    sheet.addEventListener('cancel', (e) => { e.preventDefault(); close(); });   // Esc
-    sheet.addEventListener('click', (e) => {
-      if (e.target === sheet || e.target.closest('.sheet-close')) close();
-    });
-    addEventListener('popstate', () => {
-      const slug = hashSlug();
-      if (slug) show(slug);
-      else finish();
-    });
-
-    // Any plain click on a project link, on the page or inside the sheet
-    document.addEventListener('click', (e) => {
-      if (!wide.matches || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-      const link = e.target instanceof Element && e.target.closest('a[href]');
-      if (!link || link.target === '_blank') return;
-      const slug = slugOf(link.href);
-      if (!slug) return;
-      e.preventDefault();
-      if (sheet.open) history.replaceState(history.state, '', `#work/${slug}`);
-      else history.pushState({ sheet: true }, '', `#work/${slug}`);
-      show(slug);
-    });
-    // Fetch on hover, so the sheet usually opens with its content already in hand
-    document.addEventListener('pointerover', (e) => {
-      const link = wide.matches && e.target instanceof Element && e.target.closest('a[href]');
-      const slug = link && slugOf(link.href);
-      if (slug) load(slug).catch(() => {});
-    });
-
-    // Arriving at #work/NAME: open it here on wide screens, or go to the project's page otherwise
-    const initial = hashSlug();
-    if (initial) {
-      if (wide.matches) show(initial);
-      else location.replace(pageUrl(initial));
-    }
+    addEventListener('scroll', progress, { passive: true });
+    addEventListener('resize', progress);
+    progress();
   }
 
+  // ---------- Project pages: the contents list follows the section you're reading ----------
+  const toc = [...document.querySelectorAll('.cs-toc a')];
+  if (toc.length) {
+    const heads = toc.map((a) => document.querySelector(a.hash));
+    const mark = () => {
+      let current = 0;
+      heads.forEach((h, i) => { if (h && h.getBoundingClientRect().top <= innerHeight * 0.3) current = i; });
+      toc.forEach((a, i) => (i === current ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
+    };
+    addEventListener('scroll', mark, { passive: true });
+    mark();
+  }
+
+  // ---------- Titles carry across pages (cross-document view transitions) ----------
+  const nameTitle = (el, slug) => { if (el) el.style.viewTransitionName = `t-${slug}`; };
+  // Leaving: only the clicked project's title is named (in the list, or "Next project"), and the
+  // current page's heading gives its name up, so nothing else floats across
+  document.addEventListener('click', (e) => {
+    const a = e.target instanceof Element && e.target.closest('a.work, a.cs-next');
+    const slug = a?.getAttribute('href').match(/([\w-]+)\.html$/)?.[1];
+    if (!slug) return;
+    document.querySelectorAll('.work-t, .cs-next-t').forEach((el) => { el.style.viewTransitionName = ''; });
+    document.querySelector('.cs-head h1')?.style.setProperty('view-transition-name', 'none');
+    nameTitle(a.querySelector('.work-t, .cs-next-t'), slug);
+  });
+  // Arriving home from a project: that project's row takes the heading's name, so it glides back
+  addEventListener('pagereveal', (e) => {
+    if (!e.viewTransition || document.body.dataset.page !== 'home') return;
+    const slug = window.navigation?.activation?.from?.url?.match(/\/work\/([\w-]+)\.html/)?.[1];
+    if (slug) nameTitle(document.querySelector(`a.work[href="work/${slug}.html"] .work-t`), slug);
+  });
+
+  // ---------- Keys: T switches the theme, 1–5 jump to the sections ----------
   addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
     if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
     if (e.key === 't' || e.key === 'T') { e.preventDefault(); toggleTheme(); return; }
-    if (document.querySelector('dialog[open]')) return;   // section shortcuts wait until a popup is closed
     const link = links.find((a) => a.dataset.key === e.key);
     if (!link) return;
     e.preventDefault();
     const url = new URL(link.href);
     if (url.pathname !== location.pathname) { location.href = link.href; return; }
-    const target = url.hash && url.hash !== '#top' ? document.querySelector(url.hash) : null;
-    goTo(target, reduceMotion ? 'auto' : 'smooth');
+    document.querySelector(url.hash)?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
   });
 })();

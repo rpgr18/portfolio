@@ -5,23 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Java Paper-Trading Simulator — Ryan Greene</title>
   <meta name="description" content="A Java paper-trading simulator: portfolios on real daily prices, with rebalancing, performance plots, a text menu and a Swing GUI.">
+  <link rel="canonical" href="https://rpgr18.github.io/portfolio/work/papertrade-sim.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Ryan Greene">
+  <meta property="og:title" content="Java Paper-Trading Simulator">
+  <meta property="og:description" content="A Java paper-trading simulator: portfolios on real daily prices, with rebalancing, performance plots, a text menu and a Swing GUI.">
+  <meta property="og:url" content="https://rpgr18.github.io/portfolio/work/papertrade-sim.html">
+  <meta property="og:image" content="https://rpgr18.github.io/portfolio/img/og/papertrade-sim.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Cover for Java Paper-Trading Simulator">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#ffffff">
   <link rel="icon" href="../favicon.ico" sizes="32x32">
-  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../favicon.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="../apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=06b25a76">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
+  <link rel="stylesheet" href="../assets/site.css?v=ecee6442">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
     try { if (localStorage.getItem('theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
-    // Arriving from another project page: skip the fade-ins (site.css), the page cross-fades instead
-    if (location.pathname.includes('/work/') && document.referrer.startsWith(location.origin) && document.referrer.includes('/work/') && document.referrer !== location.href) document.documentElement.classList.add('nav-internal');
-    // Wide screens show projects as a sheet over the home page instead (site.js); ?page keeps this one
-    if (matchMedia('(min-width: 75rem)').matches && !location.search) location.replace('../#work/' + location.pathname.split('/').pop().replace(/\.html$/, ''));
+    // Arriving from another page of this site: skip the fade-ins (site.css), the page cross-fades instead
+    if (document.referrer.startsWith(location.origin) && document.referrer !== location.href) document.documentElement.classList.add('nav-internal');
   </script>
 </head>
 <body data-page="work">
@@ -32,7 +41,7 @@
     <defs>
       <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.4 12 4l8 6.4V19a1 1 0 0 1-1 1h-4.25v-5.5h-5.5V20H5a1 1 0 0 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
       <symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="7" height="7" rx="1.75"/><rect x="13" y="4" width="7" height="7" rx="1.75"/><rect x="4" y="13" width="7" height="7" rx="1.75"/><rect x="13" y="13" width="7" height="7" rx="1.75"/></g></symbol>
-      <symbol id="i-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16"/><path d="m4.5 15.5 4.5-5 3.5 3 7-8"/></g></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="3.5"/><path d="M10.25 9.2v5.6l4.6-2.8z"/></g></symbol>
       <symbol id="i-briefcase" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M9 7.5V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5M3.5 12.5h17"/></g></symbol>
       <symbol id="i-layers" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="m12 4 8 4.5-8 4.5-8-4.5Z"/><path d="m4 12.5 8 4.5 8-4.5"/><path d="m4 16.5 8 4.5 8-4.5"/></g></symbol>
       <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4.5 7.5 7.5 5.5 7.5-5.5"/></g></symbol>
@@ -49,80 +58,62 @@
     </defs>
   </svg>
 
-  <!-- Nav: number keys 1–6 jump to each section -->
-  <nav class="nav" aria-label="Sections" style="--active: 3">
-    <ul>
-      <li><a class="nav-link" href="../index.html" data-key="1" aria-label="Home"><svg aria-hidden="true"><use href="#i-home"/></svg><span class="tip" aria-hidden="true">Home <kbd>1</kbd></span></a></li>
-      <li><a class="nav-link" href="../index.html#pricer" data-key="2" aria-label="Option pricer"><svg aria-hidden="true"><use href="#i-chart"/></svg><span class="tip" aria-hidden="true">Pricer <kbd>2</kbd></span></a></li>
-      <li><a class="nav-link" href="../index.html#experience" data-key="3" aria-label="Experience"><svg aria-hidden="true"><use href="#i-briefcase"/></svg><span class="tip" aria-hidden="true">Experience <kbd>3</kbd></span></a></li>
-      <li><a class="nav-link" href="../index.html#projects" data-key="4" aria-label="Projects" aria-current="true"><svg aria-hidden="true"><use href="#i-grid"/></svg><span class="tip" aria-hidden="true">Projects <kbd>4</kbd></span></a></li>
-      <li><a class="nav-link" href="../index.html#stack" data-key="5" aria-label="Stack"><svg aria-hidden="true"><use href="#i-layers"/></svg><span class="tip" aria-hidden="true">Stack <kbd>5</kbd></span></a></li>
-      <li><a class="nav-link" href="../index.html#contact" data-key="6" aria-label="Contact"><svg aria-hidden="true"><use href="#i-mail"/></svg><span class="tip" aria-hidden="true">Contact <kbd>6</kbd></span></a></li>
-      <li class="nav-sep" aria-hidden="true"></li>
-      <li><button class="nav-link theme-toggle" type="button" aria-label="Switch to dark theme"><svg class="i-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="i-sun" aria-hidden="true"><use href="#i-sun"/></svg><span class="tip" aria-hidden="true">Theme <kbd>T</kbd></span></button></li>
-    </ul>
-  </nav>
-
-  <div class="page work-layout">
-    <aside class="work-list" aria-labelledby="wl-heading">
-      <h2 class="wl-title" id="wl-heading">My work</h2>
-      <div class="wl-groups">
-        <h3 class="wl-group" id="wl-markets">Markets</h3>
-        <ul class="wl-items" aria-labelledby="wl-markets">
-          <li><a class="wl-item" href="matching-engine.html"><span class="wl-name">Matching Engine</span><span class="wl-sub">A C++ order book at 56M requests/s</span></a></li>
-          <li><a class="wl-item" href="portfolio-optimizer.html"><span class="wl-name">Portfolio Construction Workbench</span><span class="wl-sub">Allocators scored against a known truth</span></a></li>
-          <li><a class="wl-item" href="options-pricing.html"><span class="wl-name">Options Pricing &amp; Greeks Workbench</span><span class="wl-sub">Seven pricing engines, measured</span></a></li>
-          <li><span class="wl-shade" aria-hidden="true"></span><a class="wl-item" href="papertrade-sim.html" aria-current="page"><span class="wl-name">Java Paper-Trading Simulator</span><span class="wl-sub">Portfolios on real daily prices</span></a></li>
+  <!-- Top bar: number keys 1–5 jump to each section, T switches the theme -->
+  <header class="topbar">
+    <div class="topbar-in">
+      <a class="tb-name" href="../index.html">Ryan Greene</a>
+      <p class="tb-status"><span class="ed-dot" aria-hidden="true"></span>Open to opportunities</p>
+      <nav class="nav" aria-label="Sections">
+        <ul class="nav-list" id="nav-list">
+          <li><a class="nav-link" href="../index.html#projects" data-key="1" aria-current="true">Work</a></li>
+          <li><a class="nav-link" href="../index.html#demos" data-key="2">Demos</a></li>
+          <li><a class="nav-link" href="../index.html#experience" data-key="3">Experience</a></li>
+          <li><a class="nav-link" href="../index.html#stack" data-key="4">Stack</a></li>
+          <li><a class="nav-link" href="../index.html#contact" data-key="5">Contact</a></li>
         </ul>
-        <h3 class="wl-group" id="wl-research">Research</h3>
-        <ul class="wl-items" aria-labelledby="wl-research">
-          <li><a class="wl-item" href="marine-seismic.html"><span class="wl-name">Marine Seismic Deep Learning</span><span class="wl-sub">Fault and horizon detection from SEG-Y</span></a></li>
-        </ul>
-        <h3 class="wl-group" id="wl-tools">Tools</h3>
-        <ul class="wl-items" aria-labelledby="wl-tools">
-          <li><a class="wl-item" href="dsa-cli.html"><span class="wl-name">dsa-cli</span><span class="wl-sub">The NeetCode 150 in your terminal</span></a></li>
-          <li><a class="wl-item" href="surfpy-api.html"><span class="wl-name">SurfPy API</span><span class="wl-sub">Surf forecasts over REST</span></a></li>
-        </ul>
-      </div>
-    </aside>
+      </nav>
+      <button class="tb-btn theme-toggle" type="button" aria-label="Switch to dark theme"><svg class="i-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="i-sun" aria-hidden="true"><use href="#i-sun"/></svg></button>
+      <button class="tb-btn tb-menu" type="button" aria-expanded="false" aria-controls="nav-list"><span>Menu</span></button>
+    </div>
+  </header>
 
-    <div class="work-main">
-      <main class="article" id="main" tabindex="-1">
-        <a class="back" href="../index.html#projects"><svg aria-hidden="true"><use href="#i-arrow"/></svg>Projects</a>
-        <article>
-          <div class="visual cover cover--tall cover--plot" role="img" aria-label="Terminal output of the plot command: a portfolio’s value month by month from June 2023 to June 2024, drawn as rows of asterisks">
-              <div class="art art--papertrade">
-                <div class="term-win" aria-hidden="true"><div class="dots"><i></i><i></i><i></i></div>Performance of portfolio from 2023-06-14 to 2024-06-14
-
-Jun 14, 2023   <span class="dim">:</span> <span class="pass">**********</span>
-Jul 14, 2023   <span class="dim">:</span> <span class="pass">**********</span>
-Aug 13, 2023   <span class="dim">:</span> <span class="pass">**********</span>
-Sep 12, 2023   <span class="dim">:</span> <span class="pass">**********</span>
-Oct 12, 2023   <span class="dim">:</span> <span class="pass">**********</span>
-Nov 11, 2023   <span class="dim">:</span> <span class="pass">*********</span>
-Dec 11, 2023   <span class="dim">:</span> <span class="pass">*********</span>
-Jan 10, 2024   <span class="dim">:</span> <span class="pass">*********</span>
-Feb 9, 2024    <span class="dim">:</span> <span class="pass">**********</span>
-Mar 10, 2024   <span class="dim">:</span> <span class="pass">*********</span>
-Apr 9, 2024    <span class="dim">:</span> <span class="pass">**********</span>
-May 9, 2024    <span class="dim">:</span> <span class="pass">************************</span>
-Jun 8, 2024    <span class="dim">:</span> <span class="pass">*****************************</span>
-Jun 14, 2024   <span class="dim">:</span> <span class="pass">*************</span>
-
-<span class="dim">Scale: * = $130.0</span></div>
-              </div>
-            </div>
-          <h1>Java Paper-Trading Simulator</h1>
-          <dl class="facts">
-            <div><dt>Type</dt><dd>Java application, MIT</dd></div>
-            <div><dt>Timeline</dt><dd>2024</dd></div>
-            <div><dt>Stack</dt><dd>Java · Swing · JUnit · Alpha Vantage API</dd></div>
-            <div><dt>Outcome</dt><dd>Portfolios on real daily prices, behind a text menu and a Swing GUI over one model, with 273 JUnit tests.</dd></div>
-          </dl>
+  <div class="page">
+    <main class="cs" id="main" tabindex="-1">
+      <header class="cs-head">
+        <a class="cs-back" href="../index.html#projects"><svg aria-hidden="true"><use href="#i-arrow"/></svg>All work</a>
+        <p class="cs-index"><span>07 / 07</span><span>2024</span></p>
+        <h1 style="view-transition-name: t-papertrade-sim">Java Paper-Trading Simulator</h1>
+        <p class="cs-lede">Portfolios on real daily prices, with a text menu and a Swing GUI.</p>
+      </header>
+      <figure class="cs-cover">
+        <img class="visual cover" src="../img/papertrade/hero.webp" alt="A terminal plotting a paper-trading portfolio’s value month by month from June 2023 to June 2024" width="2000" height="1045" fetchpriority="high">
+      </figure>
+      <dl class="cs-facts">
+        <div><dt>Type</dt><dd>Java application, MIT</dd></div>
+        <div><dt>Timeline</dt><dd>2024</dd></div>
+        <div class="wide"><dt>Stack</dt><dd>Java · Swing · JUnit · Alpha Vantage API</dd></div>
+      </dl>
+      <ul class="cs-metrics" aria-label="Key numbers">
+        <li><b>273</b><span>JUnit tests</span></li>
+        <li><b>2</b><span>interfaces over one model</span></li>
+        <li><b>5</b><span>performance plot ranges</span></li>
+      </ul>
+      <div class="cs-body">
+        <nav class="cs-toc" aria-label="On this page">
+          <p>Contents</p>
+          <ol>
+            <li><a href="#what-you-can-do">What you can do</a></li>
+            <li><a href="#where-the-prices-come-from">Where the prices come from</a></li>
+            <li><a href="#one-model-two-interfaces">One model, two interfaces</a></li>
+            <li><a href="#validation">Validation</a></li>
+            <li><a href="#how-its-tested">How it’s tested</a></li>
+          </ol>
+        </nav>
+        <article class="cs-article">
           <div class="prose">
           <p>Stonks is a paper-trading simulator: build portfolios out of real stocks on real past dates, then ask what they’re worth, what they’re made of and how they’ve done, without putting any money at risk.</p>
 
-          <h2>What you can do</h2>
+          <h2 id="what-you-can-do">What you can do</h2>
           <ul>
             <li>Buy and sell fractional shares on any past trading day, then value a portfolio on any date.</li>
             <li>See a portfolio’s composition and how its value is distributed across holdings.</li>
@@ -132,49 +123,44 @@ Jun 14, 2024   <span class="dim">:</span> <span class="pass">*************</span
             <li>Save portfolios to disk and load them back.</li>
           </ul>
 
-          <h2>Where the prices come from</h2>
+          <h2 id="where-the-prices-come-from">Where the prices come from</h2>
           <p>Daily history comes from Alpha Vantage’s full daily time series as CSV and is saved next to the program as <code>TICKER.csv</code>. After the first query the program reads that file offline, and refreshes it from the API once it goes stale the next day. Since it only needs that format (date, open, high, low, close, volume), any CSV you drop in works too, including tickers the API doesn’t cover and histories older than its data.</p>
 
-          <h2>One model, two interfaces</h2>
+          <h2 id="one-model-two-interfaces">One model, two interfaces</h2>
           <p>The code is model-view-controller. The models build in layers, from a simple stock manager to an advanced one with dates, rebalancing and saving, and the text menus and the Swing GUI are separate controllers and views over the same model.</p>
           <figure>
             <img src="../img/papertrade-gui.webp" alt="The Stock Portfolio Manager window with four tabs: Create new Portfolio, Buy or Sell Stocks, Value of Portfolio, and Save or Load Portfolio" width="1200" height="937" loading="lazy">
             <figcaption>The Swing GUI: create, trade, value and save portfolios from four tabs.</figcaption>
           </figure>
 
-          <h2>Validation</h2>
+          <h2 id="validation">Validation</h2>
           <p>Bad input sends you back to the menu with the reason: impossible dates like 2023-30-33, dates in the future, dates before a stock existed, unknown tickers, and selling more shares than a portfolio holds. Stock splits aren’t adjusted for, which is the main known limitation.</p>
 
-          <h2>How it’s tested</h2>
+          <h2 id="how-its-tested">How it’s tested</h2>
           <p>273 JUnit tests across the models, portfolios, stocks and data sources, with mock-based tests for the text views and controllers. Some tests deliberately call the live API, since fetching prices is central to the program, so the suite needs a connection and runs best one class at a time to stay under the API’s rate limit.</p>
           </div>
           <div class="article-links">
             <a class="btn btn-secondary" href="https://github.com/rpgr18/live-papertrade-sim-java" target="_blank" rel="noopener">Code on GitHub <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
           </div>
         </article>
-        <nav class="more" aria-labelledby="more-heading">
-          <h2 class="wl-title" id="more-heading">Up next</h2>
-          <ul class="wl-items">
-            <li><a class="wl-item" href="marine-seismic.html"><span class="wl-name">Marine Seismic Deep Learning</span><span class="wl-sub">Fault and horizon detection from SEG-Y</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-            <li><a class="wl-item" href="dsa-cli.html"><span class="wl-name">dsa-cli</span><span class="wl-sub">The NeetCode 150 in your terminal</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-            <li><a class="wl-item" href="surfpy-api.html"><span class="wl-name">SurfPy API</span><span class="wl-sub">Surf forecasts over REST</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-            <li><a class="wl-item" href="matching-engine.html"><span class="wl-name">Matching Engine</span><span class="wl-sub">A C++ order book at 56M requests/s</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-            <li><a class="wl-item" href="portfolio-optimizer.html"><span class="wl-name">Portfolio Construction Workbench</span><span class="wl-sub">Allocators scored against a known truth</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-            <li><a class="wl-item" href="options-pricing.html"><span class="wl-name">Options Pricing &amp; Greeks Workbench</span><span class="wl-sub">Seven pricing engines, measured</span><svg aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-          </ul>
-        </nav>
-      </main>
-      <footer class="site-foot">
-        <p>© 2026 Ryan Greene</p>
-        <nav aria-label="Elsewhere">
-          <a href="https://github.com/rpgr18" target="_blank" rel="noopener">GitHub</a>
-          <span aria-hidden="true">·</span>
-          <a href="https://www.linkedin.com/in/rpgr18/" target="_blank" rel="noopener">LinkedIn</a>
-        </nav>
-      </footer>
-    </div>
+      </div>
+      <a class="cs-next" href="matching-engine.html">
+        <span class="cs-next-label">Next project · 01</span>
+        <span class="cs-next-t">Matching Engine</span>
+        <svg aria-hidden="true"><use href="#i-arrow"/></svg>
+      </a>
+    </main>
+    <footer class="site-foot site-foot--home">
+      <p>© 2026 Ryan Greene</p>
+      <p class="colophon">Set in Newsreader &amp; Inter</p>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/rpgr18" target="_blank" rel="noopener">GitHub</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://www.linkedin.com/in/rpgr18/" target="_blank" rel="noopener">LinkedIn</a>
+      </nav>
+    </footer>
   </div>
 
-  <script src="../assets/site.js?v=06b25a76"></script>
+  <script src="../assets/site.js?v=ecee6442"></script>
 </body>
 </html>
