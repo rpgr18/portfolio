@@ -655,8 +655,7 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
 .ed .xp { display: grid; grid-template-columns: 36px minmax(0, 1fr); column-gap: 18px; padding: 26px 0; border-bottom: 1px solid var(--line); }
 .ed .xp::before { display: none; }
 .ed .xp-rail { margin: 0; padding-top: 2px; }
-.ed .logo { width: 36px; height: 36px; box-shadow: none; filter: grayscale(1); opacity: 0.85; transition: filter 0.4s var(--ease), opacity 0.4s var(--ease); }
-.ed .xp:hover .logo { filter: none; opacity: 1; }
+.ed .logo { width: 36px; height: 36px; box-shadow: none; }
 .ed .xp.is-now .logo { box-shadow: none; }
 .ed .xp-top { gap: 4px 24px; }
 .ed .xp-org { font: 500 1rem/1.4 var(--font); letter-spacing: -0.01em; color: var(--strong); }
