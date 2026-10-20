@@ -411,13 +411,13 @@ html:not(.js) .demo { display: none; }
 @media (prefers-reduced-motion: no-preference) {
   .js :where(
     .ed-avatar, .ed-sentence, .ed-actions, .ed-facts, .ed-head, .ed-body, .works > li, .site-foot--home,
-    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next
+    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-photos > figure
   ) { opacity: 0; }
 
   /* If site.js never runs, show everything after a moment rather than leaving it hidden */
   .js:not(.motion) :where(
     .ed-avatar, .ed-sentence, .ed-actions, .ed-facts, .ed-head, .ed-body, .works > li, .site-foot--home,
-    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next
+    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-photos > figure
   ) { animation: appear 0.01s 2s both; }
 
   .js .is-in { animation: appear 0.7s var(--appear-ease) var(--delay, 0s) both; }
@@ -816,6 +816,14 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
   .cs-toc { display: none; }
   .cs-article { grid-column: 1 / -1; }
 }
+
+/* whoami: a short header and a wall of photos that flow into columns, whatever their shapes */
+.who-photos { columns: 3 260px; column-gap: 16px; margin-top: clamp(40px, 5vw, 72px); }
+.who-photos:empty { display: none; }
+.who-photos figure { break-inside: avoid; margin: 0 0 16px; }
+.who-photos img { display: block; width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 0 1px var(--line); }
+.who-photos figcaption { margin-top: 8px; font: 400 var(--fs-xs)/1.4 var(--mono); color: var(--muted); }
+@media (max-width: 40rem) { .who-photos { columns: 2; column-gap: 10px; } .who-photos figure { margin-bottom: 10px; } }
 
 /* Finishing touches */
 ::selection { background: rgb(var(--green-rgb) / 0.22); }

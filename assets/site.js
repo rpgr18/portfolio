@@ -93,7 +93,7 @@ function blackScholes(S, K, T, sigma, r) {
     document.documentElement.classList.add('motion');
     const appearing = document.querySelectorAll([
       '.ed-avatar', '.ed-sentence', '.ed-actions', '.ed-facts', '.ed-head', '.ed-body', '.works > li', '.site-foot--home',
-      '.cs-head > *', '.cs-cover', '.cs-facts', '.cs-metrics', '.cs-body', '.cs-next',
+      '.cs-head > *', '.cs-cover', '.cs-facts', '.cs-metrics', '.cs-body', '.cs-next', '.who-photos > figure',
     ].join(','));
     const loadedAt = performance.now();
     const onScreen = (node) => {
@@ -426,7 +426,7 @@ function blackScholes(S, K, T, sigma, r) {
       const atBottom = innerHeight + scrollY >= document.documentElement.scrollHeight - 2;
       let current = -1;
       sections.forEach((sec, i) => { if (sec && sec.getBoundingClientRect().top <= innerHeight * 0.35) current = i; });
-      if (atBottom) current = links.length - 1;
+      if (atBottom) current = sections.map(Boolean).lastIndexOf(true);   // the last section, not the whoami link
       links.forEach((a, i) => (i === current ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')));
     };
     addEventListener('scroll', markCurrent, { passive: true });
@@ -476,7 +476,7 @@ function blackScholes(S, K, T, sigma, r) {
     if (slug) nameTitle(document.querySelector(`a.work[href="work/${slug}.html"] .work-t`), slug);
   });
 
-  // ---------- Keys: T switches the theme, 1–5 jump to the sections ----------
+  // ---------- Keys: T switches the theme, 1–5 jump to the sections, 6 opens whoami ----------
   addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
     if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
