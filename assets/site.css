@@ -411,13 +411,13 @@ html:not(.js) .demo { display: none; }
 @media (prefers-reduced-motion: no-preference) {
   .js :where(
     .ed-avatar, .ed-sentence, .ed-actions, .ed-facts, .ed-head, .ed-body, .works > li, .site-foot--home,
-    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-photos > figure
+    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-head, .spread
   ) { opacity: 0; }
 
   /* If site.js never runs, show everything after a moment rather than leaving it hidden */
   .js:not(.motion) :where(
     .ed-avatar, .ed-sentence, .ed-actions, .ed-facts, .ed-head, .ed-body, .works > li, .site-foot--home,
-    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-photos > figure
+    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-head, .spread
   ) { animation: appear 0.01s 2s both; }
 
   .js .is-in { animation: appear 0.7s var(--appear-ease) var(--delay, 0s) both; }
@@ -817,13 +817,68 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
   .cs-article { grid-column: 1 / -1; }
 }
 
-/* whoami: a short header and a wall of photos that flow into columns, whatever their shapes */
-.who-photos { columns: 3 260px; column-gap: 16px; margin-top: clamp(40px, 5vw, 72px); }
-.who-photos:empty { display: none; }
-.who-photos figure { break-inside: avoid; margin: 0 0 16px; }
-.who-photos img { display: block; width: 100%; height: auto; border-radius: 10px; box-shadow: 0 0 0 1px var(--line); }
-.who-photos figcaption { margin-top: 8px; font: 400 var(--fs-xs)/1.4 var(--mono); color: var(--muted); }
-@media (max-width: 40rem) { .who-photos { columns: 2; column-gap: 10px; } .who-photos figure { margin-bottom: 10px; } }
+/* =========================================================
+   whoami: an alcove away from the work, set like an open journal on warm paper. Some photos run
+   across both pages, others sit one to a page, with a soft fold down the middle. Any photo opens
+   full screen (site.js).
+   ========================================================= */
+:root:has(body[data-page="whoami"]) { --bg: #f1efe9; --line: #dfdbd1; --sheet: #fbf9f4; }
+:root[data-theme="dark"]:has(body[data-page="whoami"]) { --bg: #12110f; --line: #2a2824; --sheet: #ece8df; }
+.who-head { padding-top: clamp(28px, 4vw, 56px); }
+.who-label { font: 400 var(--fs-xs)/1.4 var(--mono); color: var(--muted); }
+.who-head h1 { margin-top: 14px; font: 400 var(--t-title)/1.1 var(--display); letter-spacing: -0.02em; color: var(--strong); }
+.who-zoom { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.who-zoom img { display: block; width: 100%; height: auto; }
+
+.who-book { display: grid; gap: clamp(48px, 6vw, 96px); margin-top: clamp(40px, 5vw, 72px); }
+.spread { position: relative; display: grid; grid-template-columns: 1fr 1fr; background: var(--sheet); box-shadow: 0 1px 1px rgb(0 0 0 / 0.05), 0 34px 60px -34px rgb(0 0 0 / 0.45); }
+/* The fold: a shadow sinking into the gutter, with a faint highlight on the right-hand page */
+.spread::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to right, transparent 44%, rgb(0 0 0 / 0.05) 48%, rgb(0 0 0 / 0.16) 49.8%, rgb(255 255 255 / 0.1) 50.1%, rgb(0 0 0 / 0.06) 51%, transparent 56%);
+}
+.spread.across { display: block; }
+.spread .page { display: grid; place-items: center; aspect-ratio: 4 / 5; padding: 0 12%; }
+.spread .page img { box-shadow: 0 0 0 1px rgb(0 0 0 / 0.04); }
+.spread .page:first-child .who-zoom { translate: 0 -6%; }   /* the pair sits a little off level, as on a printed page */
+.spread .page:last-child .who-zoom { translate: 0 8%; }
+@media (max-width: 40rem) {
+  /* Phones: a two-page spread comes apart into its pages, one sheet each */
+  .who-book { gap: 28px; }
+  .spread:not(.across) { grid-template-columns: minmax(0, 1fr); gap: 28px; background: none; box-shadow: none; }
+  .spread:not(.across)::after { display: none; }
+  .spread .page { aspect-ratio: auto; padding: 9%; background: var(--sheet); box-shadow: 0 1px 1px rgb(0 0 0 / 0.05), 0 24px 40px -26px rgb(0 0 0 / 0.4); }
+  .spread .page .who-zoom { translate: none !important; }
+}
+
+/* Full screen: a dark room for one photo at a time, with a counter */
+.lb {
+  position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0;
+  border: 0; background: #0b0b0c; color: #ededef; overscroll-behavior: contain;
+}
+.lb::backdrop { background: transparent; }
+.lb[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+html:has(.lb[open]) { overflow: hidden; }
+.lb-bar, .lb-foot { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px var(--page-gutter); }
+.lb-foot { justify-content: flex-end; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+.lb-n { font: 400 var(--fs-xs)/1.4 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; color: #9a9aa0; font-variant-numeric: tabular-nums; }
+.lb-stage { display: grid; place-items: center; min-height: 0; padding: 0 var(--page-gutter); }
+.lb-stage img { display: block; max-width: 100%; max-height: calc(100dvh - 160px); width: auto; height: auto; border-radius: 3px; user-select: none; -webkit-user-drag: none; }
+.lb-stage img.is-swap { animation: lb-swap 0.35s var(--ease); }
+@keyframes lb-swap { from { opacity: 0.25; } }
+.lb button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid rgb(255 255 255 / 0.16); border-radius: 50%; background: none; color: inherit; cursor: pointer; transition: border-color 0.2s var(--ease); }
+.lb button:hover { border-color: rgb(255 255 255 / 0.5); }
+.lb button svg { width: 18px; height: 18px; }
+.lb-nav { display: flex; gap: 8px; }
+.lb-prev svg { rotate: 180deg; }
+@media (max-width: 40rem) { .lb-stage { padding: 0; } .lb-stage img { border-radius: 0; } }   /* edge to edge on phones */
+@media (prefers-reduced-motion: no-preference) { .lb[open] { animation: lb-in 0.3s var(--ease); } }
+@keyframes lb-in { from { opacity: 0; } }
+/* Opening and closing, where view transitions are supported: the photo grows out of (and back into) its place on the page */
+html.lb-switching::view-transition-old(root), html.lb-switching::view-transition-new(root) { animation-duration: 0.35s; }
+::view-transition-group(lb-photo) { animation-duration: 0.5s; animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+html.lb-switching .lb[open] { animation: none; }
+html.lb-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-name: none !important; }
 
 /* Finishing touches */
 ::selection { background: rgb(var(--green-rgb) / 0.22); }

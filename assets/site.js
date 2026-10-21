@@ -57,7 +57,7 @@ function blackScholes(S, K, T, sigma, r) {
   const themeMeta = document.querySelector('meta[name="theme-color"]');
   const syncTheme = () => {
     const dark = root.dataset.theme === 'dark';
-    themeMeta?.setAttribute('content', dark ? '#0d0d0f' : '#ffffff');
+    themeMeta?.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim() || (dark ? '#0d0d0f' : '#ffffff'));   // whoami has its own paper colour
     document.querySelectorAll('.theme-toggle').forEach((b) => b.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme'));
   };
   const applyTheme = () => {
@@ -93,7 +93,7 @@ function blackScholes(S, K, T, sigma, r) {
     document.documentElement.classList.add('motion');
     const appearing = document.querySelectorAll([
       '.ed-avatar', '.ed-sentence', '.ed-actions', '.ed-facts', '.ed-head', '.ed-body', '.works > li', '.site-foot--home',
-      '.cs-head > *', '.cs-cover', '.cs-facts', '.cs-metrics', '.cs-body', '.cs-next', '.who-photos > figure',
+      '.cs-head > *', '.cs-cover', '.cs-facts', '.cs-metrics', '.cs-body', '.cs-next', '.who-head', '.spread',
     ].join(','));
     const loadedAt = performance.now();
     const onScreen = (node) => {
@@ -476,10 +476,81 @@ function blackScholes(S, K, T, sigma, r) {
     if (slug) nameTitle(document.querySelector(`a.work[href="work/${slug}.html"] .work-t`), slug);
   });
 
+  // ---------- whoami: any photo opens full screen ----------
+  // Arrow keys, the buttons or a swipe move between photos; Esc, the X or a click beside the photo
+  // closes it. Where view transitions are supported, the photo grows out of its place on the page and back.
+  const zooms = [...document.querySelectorAll('.who-zoom')];
+  if (zooms.length) {
+    const lb = document.createElement('dialog');
+    lb.className = 'lb';
+    lb.setAttribute('aria-label', 'Photo, full screen');
+    lb.innerHTML = '<div class="lb-bar"><span class="lb-n" aria-live="polite"></span><button class="lb-x" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></button></div>'
+      + '<div class="lb-stage"><img alt="" decoding="async"></div>'
+      + '<div class="lb-foot"><div class="lb-nav"><button class="lb-prev" type="button" aria-label="Previous photo"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button><button class="lb-next" type="button" aria-label="Next photo"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div></div>';
+    document.body.append(lb);
+    const big = lb.querySelector('.lb-stage img');
+    const label = lb.querySelector('.lb-n');
+    const thumbs = zooms.map((z) => z.querySelector('img'));
+    let cur = 0;
+    const show = (i) => {
+      cur = (i + thumbs.length) % thumbs.length;
+      const t = thumbs[cur], want = cur;
+      big.removeAttribute('srcset');
+      big.src = t.currentSrc || t.src;   // what the page already loaded, so it appears at once...
+      big.alt = t.alt;
+      setTimeout(() => {                 // ...then the sharpest size for the screen swaps in once it's ready
+        if (cur === want && lb.open) { big.sizes = '100vw'; big.srcset = t.getAttribute('srcset'); }
+      }, 700);
+      label.textContent = `${cur + 1} / ${thumbs.length}`;
+      [cur - 1, cur + 1].forEach((j) => { const n = thumbs[(j + thumbs.length) % thumbs.length]; if (n.loading === 'lazy') n.loading = 'eager'; });
+    };
+    const step = (d) => { show(cur + d); big.classList.remove('is-swap'); void big.offsetWidth; big.classList.add('is-swap'); };
+    // Run a change as a view transition that carries the photo between `from` and `to`
+    const morph = (from, to, change) => {
+      if (!document.startViewTransition || reduceMotion) { change(); return; }
+      root.classList.add('lb-switching');
+      from.style.viewTransitionName = 'lb-photo';
+      const t = document.startViewTransition(async () => {
+        from.style.viewTransitionName = '';
+        change();
+        to.style.viewTransitionName = 'lb-photo';
+        await to.decode?.().catch(() => {});
+      });
+      t.finished.finally(() => { to.style.viewTransitionName = ''; root.classList.remove('lb-switching'); });
+    };
+    const open = (i) => morph(thumbs[i], big, () => { show(i); lb.showModal(); });
+    const close = () => {
+      if (!lb.open) return;
+      const back = thumbs[cur];
+      const onScreen = (() => { const r = back.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; })();
+      if (onScreen) morph(big, back, () => lb.close());
+      else lb.close();
+    };
+    zooms.forEach((z, i) => z.addEventListener('click', () => open(i)));
+    lb.querySelector('.lb-x').addEventListener('click', close);
+    lb.querySelector('.lb-prev').addEventListener('click', () => step(-1));
+    lb.querySelector('.lb-next').addEventListener('click', () => step(1));
+    lb.addEventListener('cancel', (e) => { e.preventDefault(); close(); });   // Esc, with the animation
+    lb.addEventListener('click', (e) => { if (e.target === lb || e.target.classList.contains('lb-stage')) close(); });
+    lb.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
+    });
+    // Swipe sideways on touch screens
+    let sx = null;
+    lb.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') sx = e.clientX; });
+    lb.addEventListener('pointerup', (e) => {
+      if (sx === null) return;
+      const dx = e.clientX - sx; sx = null;
+      if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+    });
+  }
+
   // ---------- Keys: T switches the theme, 1–5 jump to the sections, 6 opens whoami ----------
   addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
     if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
+    if (document.querySelector('.lb[open]')) return;
     if (e.key === 't' || e.key === 'T') { e.preventDefault(); toggleTheme(); return; }
     const link = links.find((a) => a.dataset.key === e.key);
     if (!link) return;
