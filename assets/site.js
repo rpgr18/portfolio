@@ -93,7 +93,7 @@ function blackScholes(S, K, T, sigma, r) {
     document.documentElement.classList.add('motion');
     const appearing = document.querySelectorAll([
       '.ed-avatar', '.ed-sentence', '.ed-actions', '.ed-facts', '.ed-head', '.ed-body', '.works > li', '.site-foot--home',
-      '.cs-head > *', '.cs-cover', '.cs-facts', '.cs-metrics', '.cs-body', '.cs-next', '.who-head', '.spread',
+      '.cs-head > *', '.cs-cover', '.cs-facts', '.cs-metrics', '.cs-body', '.cs-next', '.who-track > *',
     ].join(','));
     const loadedAt = performance.now();
     const onScreen = (node) => {
@@ -475,6 +475,76 @@ function blackScholes(S, K, T, sigma, r) {
     const slug = window.navigation?.activation?.from?.url?.match(/\/work\/([\w-]+)\.html/)?.[1];
     if (slug) nameTitle(document.querySelector(`a.work[href="work/${slug}.html"] .work-t`), slug);
   });
+
+  // ---------- whoami: the gallery wall ----------
+  // On wider screens the wall is pinned and the page's vertical scroll carries it sideways (the
+  // section is made as tall as the wall is wide); on phones it's a row you swipe. The hairline
+  // fills as you go, the arrows and arrow keys step a print at a time, and each print's photo
+  // drifts slightly inside its edges as it crosses the screen.
+  const gallery = document.querySelector('.who-gallery');
+  if (gallery) {
+    const wall = gallery.querySelector('.who-wall');
+    const track = gallery.querySelector('.who-track');
+    const prints = [...track.querySelectorAll('.who-zoom')];
+    const fill = gallery.querySelector('.who-progress i');
+    const wide = matchMedia('(min-width: 40.01rem)');
+    let pinned = false, top = 0, stick = 0, max = 0, x = 0, raf = 0;
+    const update = () => {
+      raf = 0;
+      x = pinned ? Math.min(max, Math.max(0, scrollY + stick - top)) : track.scrollLeft;
+      if (pinned) track.style.transform = `translate3d(${-x}px, 0, 0)`;
+      fill.style.transform = `scaleX(${max ? (x / max).toFixed(4) : 0})`;
+      if (pinned && !reduceMotion) {
+        const w = innerWidth;
+        prints.forEach((p) => {
+          const r = p.getBoundingClientRect();
+          if (r.right < 0 || r.left > w) return;
+          p.firstElementChild.style.translate = `${(((r.left + r.width / 2) / w - 0.5) * -3.5).toFixed(2)}% 0`;
+        });
+      }
+    };
+    const queue = () => { if (!raf) raf = requestAnimationFrame(update); };
+    const layout = () => {
+      pinned = wide.matches;
+      gallery.classList.toggle('is-pinned', pinned);
+      track.style.transform = '';
+      gallery.style.height = '';
+      if (pinned) {
+        stick = parseFloat(getComputedStyle(wall).top) || 0;
+        max = Math.max(0, track.scrollWidth - document.documentElement.clientWidth);
+        gallery.style.height = `${max + wall.offsetHeight}px`;
+        top = gallery.getBoundingClientRect().top + scrollY;
+      } else {
+        max = Math.max(0, track.scrollWidth - track.clientWidth);
+      }
+      update();
+    };
+    // Each print's stop: where the track sits when that print's left edge meets the page margin
+    const stops = () => {
+      const pad = parseFloat(getComputedStyle(track).paddingLeft) || 0;
+      return [0, ...prints.map((p) => Math.min(max, Math.max(0, p.offsetLeft - pad)))];
+    };
+    const go = (dir) => {
+      const all = stops();
+      const to = dir > 0 ? all.find((t) => t > x + 4) ?? max : [...all].reverse().find((t) => t < x - 4) ?? 0;
+      const behavior = reduceMotion ? 'auto' : 'smooth';
+      if (pinned) scrollTo({ top: top - stick + to, behavior });
+      else track.scrollTo({ left: to, behavior });
+    };
+    gallery.querySelector('.who-prev').addEventListener('click', () => go(-1));
+    gallery.querySelector('.who-next').addEventListener('click', () => go(1));
+    addEventListener('keydown', (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || document.querySelector('.lb[open]')) return;
+      if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); go(e.key === 'ArrowRight' ? 1 : -1); }
+    });
+    addEventListener('scroll', queue, { passive: true });
+    track.addEventListener('scroll', queue, { passive: true });
+    addEventListener('resize', layout);
+    wide.addEventListener('change', layout);
+    document.fonts?.ready.then(layout);
+    layout();
+  }
 
   // ---------- whoami: any photo opens full screen ----------
   // Arrow keys, the buttons or a swipe move between photos; Esc, the X or a click beside the photo

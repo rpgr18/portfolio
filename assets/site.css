@@ -411,13 +411,13 @@ html:not(.js) .demo { display: none; }
 @media (prefers-reduced-motion: no-preference) {
   .js :where(
     .ed-avatar, .ed-sentence, .ed-actions, .ed-facts, .ed-head, .ed-body, .works > li, .site-foot--home,
-    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-head, .spread
+    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-track > *
   ) { opacity: 0; }
 
   /* If site.js never runs, show everything after a moment rather than leaving it hidden */
   .js:not(.motion) :where(
     .ed-avatar, .ed-sentence, .ed-actions, .ed-facts, .ed-head, .ed-body, .works > li, .site-foot--home,
-    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-head, .spread
+    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-track > *
   ) { animation: appear 0.01s 2s both; }
 
   .js .is-in { animation: appear 0.7s var(--appear-ease) var(--delay, 0s) both; }
@@ -818,38 +818,54 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
 }
 
 /* =========================================================
-   whoami: an alcove away from the work, set like an open journal on warm paper. Some photos run
-   across both pages, others sit one to a page, with a soft fold down the middle. Any photo opens
-   full screen (site.js).
+   whoami: an alcove away from the work, on warm paper. The photos hang along one wall like
+   prints in a gallery, at different sizes and heights, square-cornered and unframed. On wider
+   screens the wall is pinned and scrolling down carries it sideways (site.js adds .is-pinned);
+   on phones, or without JS, it's a row you swipe. Any photo opens full screen.
    ========================================================= */
-:root:has(body[data-page="whoami"]) { --bg: #f1efe9; --line: #dfdbd1; --sheet: #fbf9f4; }
-:root[data-theme="dark"]:has(body[data-page="whoami"]) { --bg: #12110f; --line: #2a2824; --sheet: #ece8df; }
-.who-head { padding-top: clamp(28px, 4vw, 56px); }
+:root:has(body[data-page="whoami"]) { --bg: #f1efe9; --line: #dfdbd1; }
+:root[data-theme="dark"]:has(body[data-page="whoami"]) { --bg: #12110f; --line: #2a2824; }
+.who-gallery {
+  --pad-x: max(var(--page-gutter), calc((100vw - 1360px) / 2 + var(--page-gutter)));
+  width: 100vw; margin-left: calc(50% - 50vw); overflow-x: clip;
+}
+.who-wall { display: flex; flex-direction: column; padding-top: clamp(28px, 4vw, 56px); }
+.who-track {
+  position: relative; display: flex; align-items: center; gap: clamp(28px, 5vw, 96px);
+  height: clamp(300px, 58svh, 520px); padding: 0 var(--pad-x);
+  overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-inline: var(--pad-x); scrollbar-width: none;
+}
+.who-track::-webkit-scrollbar { display: none; }
+.who-track > * { flex: none; scroll-snap-align: start; }
+.who-intro { align-self: flex-end; width: clamp(180px, 20vw, 300px); }
 .who-label { font: 400 var(--fs-xs)/1.4 var(--mono); color: var(--muted); }
-.who-head h1 { margin-top: 14px; font: 400 var(--t-title)/1.1 var(--display); letter-spacing: -0.02em; color: var(--strong); }
-.who-zoom { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
-.who-zoom img { display: block; width: 100%; height: auto; }
-
-.who-book { display: grid; gap: clamp(48px, 6vw, 96px); margin-top: clamp(40px, 5vw, 72px); }
-.spread { position: relative; display: grid; grid-template-columns: 1fr 1fr; background: var(--sheet); box-shadow: 0 1px 1px rgb(0 0 0 / 0.05), 0 34px 60px -34px rgb(0 0 0 / 0.45); }
-/* The fold: a shadow sinking into the gutter, with a faint highlight on the right-hand page */
-.spread::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(to right, transparent 44%, rgb(0 0 0 / 0.05) 48%, rgb(0 0 0 / 0.16) 49.8%, rgb(255 255 255 / 0.1) 50.1%, rgb(0 0 0 / 0.06) 51%, transparent 56%);
-}
-.spread.across { display: block; }
-.spread .page { display: grid; place-items: center; aspect-ratio: 4 / 5; padding: 0 12%; }
-.spread .page img { box-shadow: 0 0 0 1px rgb(0 0 0 / 0.04); }
-.spread .page:first-child .who-zoom { translate: 0 -6%; }   /* the pair sits a little off level, as on a printed page */
-.spread .page:last-child .who-zoom { translate: 0 8%; }
+.who-intro h1 { margin-top: 12px; font: 400 var(--t-title)/1.1 var(--display); letter-spacing: -0.02em; color: var(--strong); }
+.who-zoom { display: block; height: 78%; aspect-ratio: var(--ar); padding: 0; border: 0; overflow: hidden; background: color-mix(in srgb, var(--strong) 6%, transparent); cursor: zoom-in; }
+.who-zoom img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.who-zoom.is-m { height: 56%; }
+.who-zoom.is-s { height: 40%; margin-inline: clamp(0px, 1.5vw, 28px); }
+.who-zoom.at-top { align-self: flex-start; }
+.who-zoom.at-end { align-self: flex-end; }
+.who-bar { display: flex; align-items: center; gap: 24px; padding: 22px var(--pad-x) 0; }
+.who-progress { flex: 1; height: 1px; background: var(--line); }
+.who-progress i { display: block; height: 100%; background: var(--strong); transform: scaleX(0); transform-origin: left; }
+.who-arrows { display: flex; gap: 8px; }
+.who-arrows button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: none; color: var(--strong); cursor: pointer; transition: border-color 0.2s var(--ease); }
+.who-arrows button:hover { border-color: var(--strong); }
+.who-arrows svg { width: 16px; height: 16px; }
+.who-prev svg { rotate: 180deg; }
 @media (max-width: 40rem) {
-  /* Phones: a two-page spread comes apart into its pages, one sheet each */
-  .who-book { gap: 28px; }
-  .spread:not(.across) { grid-template-columns: minmax(0, 1fr); gap: 28px; background: none; box-shadow: none; }
-  .spread:not(.across)::after { display: none; }
-  .spread .page { aspect-ratio: auto; padding: 9%; background: var(--sheet); box-shadow: 0 1px 1px rgb(0 0 0 / 0.05), 0 24px 40px -26px rgb(0 0 0 / 0.4); }
-  .spread .page .who-zoom { translate: none !important; }
+  /* Phones: prints sized by the screen's width, staggered up and down a taller row */
+  .who-track { height: clamp(320px, 96vw, 460px); gap: 28px; }
+  .who-intro { width: 58vw; }
+  .who-zoom { height: auto; width: 82vw; }
+  .who-zoom.is-m { height: auto; width: 66vw; }
+  .who-zoom.is-s { height: auto; width: 52vw; margin-inline: 0; }
 }
+/* Pinned: the wall holds still under the top bar while the page scrolls it sideways */
+.who-gallery.is-pinned .who-wall { position: sticky; top: 72px; height: calc(100svh - 72px); padding: clamp(16px, 3vh, 40px) 0 clamp(20px, 3.5vh, 36px); overflow: hidden; }
+.who-gallery.is-pinned .who-track { flex: 1; height: auto; min-height: 0; width: max-content; overflow: visible; will-change: transform; }
+.who-gallery.is-pinned .who-zoom img { scale: 1.08; }   /* room for the slow drift inside each print (site.js) */
 
 /* Full screen: a dark room for one photo at a time, with a counter */
 .lb {
