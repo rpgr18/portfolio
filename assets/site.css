@@ -411,13 +411,13 @@ html:not(.js) .demo { display: none; }
 @media (prefers-reduced-motion: no-preference) {
   .js :where(
     .ed-avatar, .ed-sentence, .ed-actions, .ed-facts, .ed-head, .ed-body, .works > li, .site-foot--home,
-    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-track > *
+    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-head, .lib > .who-zoom
   ) { opacity: 0; }
 
   /* If site.js never runs, show everything after a moment rather than leaving it hidden */
   .js:not(.motion) :where(
     .ed-avatar, .ed-sentence, .ed-actions, .ed-facts, .ed-head, .ed-body, .works > li, .site-foot--home,
-    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-track > *
+    .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-head, .lib > .who-zoom
   ) { animation: appear 0.01s 2s both; }
 
   .js .is-in { animation: appear 0.7s var(--appear-ease) var(--delay, 0s) both; }
@@ -818,54 +818,26 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
 }
 
 /* =========================================================
-   whoami: an alcove away from the work, on warm paper. The photos hang along one wall like
-   prints in a gallery, at different sizes and heights, square-cornered and unframed. On wider
-   screens the wall is pinned and scrolling down carries it sideways (site.js adds .is-pinned);
-   on phones, or without JS, it's a row you swipe. Any photo opens full screen.
+   whoami: the photos as a library. Rows fill the width edge to edge with thin gaps; every photo
+   in a row shares its height (flex grows each one in proportion to its shape). Any photo opens
+   full screen (site.js).
    ========================================================= */
-:root:has(body[data-page="whoami"]) { --bg: #f1efe9; --line: #dfdbd1; }
-:root[data-theme="dark"]:has(body[data-page="whoami"]) { --bg: #12110f; --line: #2a2824; }
-.who-gallery {
-  --pad-x: max(var(--page-gutter), calc((100vw - 1360px) / 2 + var(--page-gutter)));
-  width: 100vw; margin-left: calc(50% - 50vw); overflow-x: clip;
-}
-.who-wall { display: flex; flex-direction: column; padding-top: clamp(28px, 4vw, 56px); }
-.who-track {
-  position: relative; display: flex; align-items: center; gap: clamp(28px, 5vw, 96px);
-  height: clamp(300px, 58svh, 520px); padding: 0 var(--pad-x);
-  overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-inline: var(--pad-x); scrollbar-width: none;
-}
-.who-track::-webkit-scrollbar { display: none; }
-.who-track > * { flex: none; scroll-snap-align: start; }
-.who-intro { align-self: flex-end; width: clamp(180px, 20vw, 300px); }
+.who-head { padding-top: clamp(28px, 4vw, 56px); }
 .who-label { font: 400 var(--fs-xs)/1.4 var(--mono); color: var(--muted); }
-.who-intro h1 { margin-top: 12px; font: 400 var(--t-title)/1.1 var(--display); letter-spacing: -0.02em; color: var(--strong); }
-.who-zoom { display: block; height: 78%; aspect-ratio: var(--ar); padding: 0; border: 0; overflow: hidden; background: color-mix(in srgb, var(--strong) 6%, transparent); cursor: zoom-in; }
-.who-zoom img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.who-zoom.is-m { height: 56%; }
-.who-zoom.is-s { height: 40%; margin-inline: clamp(0px, 1.5vw, 28px); }
-.who-zoom.at-top { align-self: flex-start; }
-.who-zoom.at-end { align-self: flex-end; }
-.who-bar { display: flex; align-items: center; gap: 24px; padding: 22px var(--pad-x) 0; }
-.who-progress { flex: 1; height: 1px; background: var(--line); }
-.who-progress i { display: block; height: 100%; background: var(--strong); transform: scaleX(0); transform-origin: left; }
-.who-arrows { display: flex; gap: 8px; }
-.who-arrows button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: none; color: var(--strong); cursor: pointer; transition: border-color 0.2s var(--ease); }
-.who-arrows button:hover { border-color: var(--strong); }
-.who-arrows svg { width: 16px; height: 16px; }
-.who-prev svg { rotate: 180deg; }
-@media (max-width: 40rem) {
-  /* Phones: prints sized by the screen's width, staggered up and down a taller row */
-  .who-track { height: clamp(320px, 96vw, 460px); gap: 28px; }
-  .who-intro { width: 58vw; }
-  .who-zoom { height: auto; width: 82vw; }
-  .who-zoom.is-m { height: auto; width: 66vw; }
-  .who-zoom.is-s { height: auto; width: 52vw; margin-inline: 0; }
+.who-head h1 { margin-top: 12px; font: 400 var(--t-title)/1.1 var(--display); letter-spacing: -0.02em; color: var(--strong); }
+.lib { --row: clamp(104px, 17vw, 260px); --lib-gap: clamp(6px, 0.6vw, 10px); display: flex; flex-wrap: wrap; gap: var(--lib-gap); margin-top: clamp(40px, 5vw, 72px); }
+.lib::after { content: ""; flex: 999 1 0; }   /* the last row keeps its height instead of stretching */
+.lib .who-zoom {
+  position: relative; flex: calc(var(--ar) * 100) 1 calc(var(--ar) * var(--row)); aspect-ratio: var(--ar);
+  padding: 0; border: 0; overflow: hidden; background: color-mix(in srgb, var(--strong) 5%, transparent); cursor: zoom-in;
 }
-/* Pinned: the wall holds still under the top bar while the page scrolls it sideways */
-.who-gallery.is-pinned .who-wall { position: sticky; top: 72px; height: calc(100svh - 72px); padding: clamp(16px, 3vh, 40px) 0 clamp(20px, 3.5vh, 36px); overflow: hidden; }
-.who-gallery.is-pinned .who-track { flex: 1; height: auto; min-height: 0; width: max-content; overflow: visible; will-change: transform; }
-.who-gallery.is-pinned .who-zoom img { scale: 1.08; }   /* room for the slow drift inside each print (site.js) */
+.lib.is-justified .who-zoom { flex: none; aspect-ratio: auto; }
+.lib .who-zoom img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: scale 0.9s var(--appear-ease), opacity 0.4s var(--ease); }
+@media (hover: hover) {
+  .lib:has(.who-zoom:hover) .who-zoom:not(:hover) img { opacity: 0.72; }
+  .lib .who-zoom:hover img { scale: 1.03; }
+}
+.lib .who-zoom:focus-visible { outline-offset: 3px; }
 
 /* Full screen: a dark room for one photo at a time, with a counter */
 .lb {

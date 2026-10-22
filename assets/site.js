@@ -93,7 +93,7 @@ function blackScholes(S, K, T, sigma, r) {
     document.documentElement.classList.add('motion');
     const appearing = document.querySelectorAll([
       '.ed-avatar', '.ed-sentence', '.ed-actions', '.ed-facts', '.ed-head', '.ed-body', '.works > li', '.site-foot--home',
-      '.cs-head > *', '.cs-cover', '.cs-facts', '.cs-metrics', '.cs-body', '.cs-next', '.who-track > *',
+      '.cs-head > *', '.cs-cover', '.cs-facts', '.cs-metrics', '.cs-body', '.cs-next', '.who-head', '.lib > .who-zoom',
     ].join(','));
     const loadedAt = performance.now();
     const onScreen = (node) => {
@@ -476,79 +476,38 @@ function blackScholes(S, K, T, sigma, r) {
     if (slug) nameTitle(document.querySelector(`a.work[href="work/${slug}.html"] .work-t`), slug);
   });
 
-  // ---------- whoami: the gallery wall ----------
-  // On wider screens the wall is pinned and the page's vertical scroll carries it sideways (the
-  // section is made as tall as the wall is wide); on phones it's a row you swipe. The hairline
-  // fills as you go, the arrows and arrow keys step a print at a time, and each print's photo
-  // drifts slightly inside its edges as it crosses the screen.
-  const gallery = document.querySelector('.who-gallery');
-  if (gallery) {
-    const wall = gallery.querySelector('.who-wall');
-    const track = gallery.querySelector('.who-track');
-    const prints = [...track.querySelectorAll('.who-zoom')];
-    const fill = gallery.querySelector('.who-progress i');
-    const wide = matchMedia('(min-width: 40.01rem)');
-    let pinned = false, top = 0, stick = 0, max = 0, x = 0, raf = 0;
-    const update = () => {
-      raf = 0;
-      x = pinned ? Math.min(max, Math.max(0, scrollY + stick - top)) : track.scrollLeft;
-      if (pinned) track.style.transform = `translate3d(${-x}px, 0, 0)`;
-      fill.style.transform = `scaleX(${max ? (x / max).toFixed(4) : 0})`;
-      if (pinned && !reduceMotion) {
-        const w = innerWidth;
-        prints.forEach((p) => {
-          const r = p.getBoundingClientRect();
-          if (r.right < 0 || r.left > w) return;
-          p.firstElementChild.style.translate = `${(((r.left + r.width / 2) / w - 0.5) * -3.5).toFixed(2)}% 0`;
-        });
-      }
+  // ---------- whoami: rows of photos that fill the width ----------
+  // Photos go into a row until it's full at about the target height; the row then ends either there
+  // or one photo earlier, whichever lands nearer the target, and is scaled to span the width exactly.
+  // The last row keeps the target height rather than stretching. (Without JS, flex does a rougher job.)
+  const lib = document.querySelector('.lib');
+  if (lib) {
+    const items = [...lib.querySelectorAll('.who-zoom')];
+    const ratios = items.map((b) => { const i = b.querySelector('img'); return i.getAttribute('width') / i.getAttribute('height'); });
+    const justify = () => {
+      const W = lib.clientWidth - 0.5, gap = parseFloat(getComputedStyle(lib).columnGap) || 0;
+      const target = W < 600 ? W * 0.46 : Math.min(300, Math.max(140, W * 0.21));   // phones: one or two to a row
+      const fit = (n, sum) => (W - gap * (n - 1)) / sum;
+      const set = (row, h) => row.forEach((i) => { items[i].style.width = `${ratios[i] * h}px`; items[i].style.height = `${h}px`; });
+      let row = [], sum = 0;
+      items.forEach((_, i) => {
+        row.push(i); sum += ratios[i];
+        const h = fit(row.length, sum);
+        if (h > target) return;
+        const before = row.length > 1 ? fit(row.length - 1, sum - ratios[i]) : Infinity;
+        if (Math.abs(before - target) < Math.abs(h - target)) { row.pop(); set(row, before); row = [i]; sum = ratios[i]; }
+        else { set(row, h); row = []; sum = 0; }
+      });
+      if (row.length) set(row, Math.min(target, fit(row.length, sum)));
+      lib.classList.add('is-justified');
     };
-    const queue = () => { if (!raf) raf = requestAnimationFrame(update); };
-    const layout = () => {
-      pinned = wide.matches;
-      gallery.classList.toggle('is-pinned', pinned);
-      track.style.transform = '';
-      gallery.style.height = '';
-      if (pinned) {
-        stick = parseFloat(getComputedStyle(wall).top) || 0;
-        max = Math.max(0, track.scrollWidth - document.documentElement.clientWidth);
-        gallery.style.height = `${max + wall.offsetHeight}px`;
-        top = gallery.getBoundingClientRect().top + scrollY;
-      } else {
-        max = Math.max(0, track.scrollWidth - track.clientWidth);
-      }
-      update();
-    };
-    // Each print's stop: where the track sits when that print's left edge meets the page margin
-    const stops = () => {
-      const pad = parseFloat(getComputedStyle(track).paddingLeft) || 0;
-      return [0, ...prints.map((p) => Math.min(max, Math.max(0, p.offsetLeft - pad)))];
-    };
-    const go = (dir) => {
-      const all = stops();
-      const to = dir > 0 ? all.find((t) => t > x + 4) ?? max : [...all].reverse().find((t) => t < x - 4) ?? 0;
-      const behavior = reduceMotion ? 'auto' : 'smooth';
-      if (pinned) scrollTo({ top: top - stick + to, behavior });
-      else track.scrollTo({ left: to, behavior });
-    };
-    gallery.querySelector('.who-prev').addEventListener('click', () => go(-1));
-    gallery.querySelector('.who-next').addEventListener('click', () => go(1));
-    addEventListener('keydown', (e) => {
-      if (e.metaKey || e.ctrlKey || e.altKey || document.querySelector('.lb[open]')) return;
-      if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
-      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); go(e.key === 'ArrowRight' ? 1 : -1); }
-    });
-    addEventListener('scroll', queue, { passive: true });
-    track.addEventListener('scroll', queue, { passive: true });
-    addEventListener('resize', layout);
-    wide.addEventListener('change', layout);
-    document.fonts?.ready.then(layout);
-    layout();
+    new ResizeObserver(justify).observe(lib);
   }
 
   // ---------- whoami: any photo opens full screen ----------
   // Arrow keys, the buttons or a swipe move between photos; Esc, the X or a click beside the photo
   // closes it. Where view transitions are supported, the photo grows out of its place on the page and back.
+  // Buttons that share a data-i are copies of one photo (a layout may show a photo more than once).
   const zooms = [...document.querySelectorAll('.who-zoom')];
   if (zooms.length) {
     const lb = document.createElement('dialog');
@@ -560,8 +519,12 @@ function blackScholes(S, K, T, sigma, r) {
     document.body.append(lb);
     const big = lb.querySelector('.lb-stage img');
     const label = lb.querySelector('.lb-n');
-    const thumbs = zooms.map((z) => z.querySelector('img'));
-    let cur = 0;
+    const keyOf = (z) => z.dataset.i ?? String(zooms.indexOf(z));
+    const firsts = new Map();
+    zooms.forEach((z) => { if (!firsts.has(keyOf(z))) firsts.set(keyOf(z), z.querySelector('img')); });
+    const keys = [...firsts.keys()].sort((a, b) => a - b);
+    const thumbs = keys.map((k) => firsts.get(k));
+    let cur = 0, from = null;   // from: the copy that was clicked, to return to on close
     const show = (i) => {
       cur = (i + thumbs.length) % thumbs.length;
       const t = thumbs[cur], want = cur;
@@ -588,15 +551,15 @@ function blackScholes(S, K, T, sigma, r) {
       });
       t.finished.finally(() => { to.style.viewTransitionName = ''; root.classList.remove('lb-switching'); });
     };
-    const open = (i) => morph(thumbs[i], big, () => { show(i); lb.showModal(); });
+    const open = (i, img) => { from = img; morph(img, big, () => { show(i); lb.showModal(); }); };
     const close = () => {
       if (!lb.open) return;
-      const back = thumbs[cur];
+      const back = from && keyOf(from.closest('.who-zoom')) === keys[cur] ? from : thumbs[cur];
       const onScreen = (() => { const r = back.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; })();
       if (onScreen) morph(big, back, () => lb.close());
       else lb.close();
     };
-    zooms.forEach((z, i) => z.addEventListener('click', () => open(i)));
+    zooms.forEach((z) => z.addEventListener('click', () => open(keys.indexOf(keyOf(z)), z.querySelector('img'))));
     lb.querySelector('.lb-x').addEventListener('click', close);
     lb.querySelector('.lb-prev').addEventListener('click', () => step(-1));
     lb.querySelector('.lb-next').addEventListener('click', () => step(1));
