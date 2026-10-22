@@ -505,66 +505,91 @@ function blackScholes(S, K, T, sigma, r) {
   }
 
   // ---------- whoami: any photo opens full screen ----------
-  // Arrow keys, the buttons or a swipe move between photos; Esc, the X or a click beside the photo
-  // closes it. Where view transitions are supported, the photo grows out of its place on the page and back.
-  // Buttons that share a data-i are copies of one photo (a layout may show a photo more than once).
+  // The photo lifts out of its place in the rows and glides to full size while the page fades to its
+  // own background; closing sends it back to where it came from. Arrow keys, the buttons or a swipe
+  // move between photos; Esc, the X or a click beside the photo closes it. Buttons that share a
+  // data-i are copies of one photo (a layout may show a photo more than once).
   const zooms = [...document.querySelectorAll('.who-zoom')];
   if (zooms.length) {
     const lb = document.createElement('dialog');
     lb.className = 'lb';
     lb.setAttribute('aria-label', 'Photo, full screen');
-    lb.innerHTML = '<div class="lb-bar"><span class="lb-n" aria-live="polite"></span><button class="lb-x" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></button></div>'
+    lb.innerHTML = '<div class="lb-bg"></div>'
+      + '<div class="lb-bar"><span class="lb-n" aria-live="polite"></span><button class="lb-x" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></button></div>'
       + '<div class="lb-stage"><img alt="" decoding="async"></div>'
       + '<div class="lb-foot"><div class="lb-nav"><button class="lb-prev" type="button" aria-label="Previous photo"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button><button class="lb-next" type="button" aria-label="Next photo"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div></div>';
     document.body.append(lb);
-    const big = lb.querySelector('.lb-stage img');
-    const label = lb.querySelector('.lb-n');
+    const bg = lb.querySelector('.lb-bg'), big = lb.querySelector('.lb-stage img'), label = lb.querySelector('.lb-n');
+    const chrome = [lb.querySelector('.lb-bar'), lb.querySelector('.lb-foot')];
     const keyOf = (z) => z.dataset.i ?? String(zooms.indexOf(z));
     const firsts = new Map();
     zooms.forEach((z) => { if (!firsts.has(keyOf(z))) firsts.set(keyOf(z), z.querySelector('img')); });
     const keys = [...firsts.keys()].sort((a, b) => a - b);
     const thumbs = keys.map((k) => firsts.get(k));
-    let cur = 0, from = null;   // from: the copy that was clicked, to return to on close
+    const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    let cur = 0, from = null, busy = false;
     const show = (i) => {
       cur = (i + thumbs.length) % thumbs.length;
       const t = thumbs[cur], want = cur;
-      big.removeAttribute('srcset');
-      big.src = t.currentSrc || t.src;   // what the page already loaded, so it appears at once...
+      big.src = t.currentSrc || t.src;   // the copy the page already has, so it's there at once...
       big.alt = t.alt;
-      setTimeout(() => {                 // ...then the sharpest size for the screen swaps in once it's ready
-        if (cur === want && lb.open) { big.sizes = '100vw'; big.srcset = t.getAttribute('srcset'); }
-      }, 700);
       label.textContent = `${cur + 1} / ${thumbs.length}`;
+      const sharp = new Image();         // ...and the sharpest size for the screen once it has loaded
+      sharp.sizes = '100vw'; sharp.srcset = t.getAttribute('srcset') || ''; sharp.src = t.getAttribute('src');
+      sharp.decode().then(() => { if (cur === want && lb.open) big.src = sharp.currentSrc || sharp.src; }).catch(() => {});
       [cur - 1, cur + 1].forEach((j) => { const n = thumbs[(j + thumbs.length) % thumbs.length]; if (n.loading === 'lazy') n.loading = 'eager'; });
     };
-    const step = (d) => { show(cur + d); big.classList.remove('is-swap'); void big.offsetWidth; big.classList.add('is-swap'); };
-    // Run a change as a view transition that carries the photo between `from` and `to`
-    const morph = (from, to, change) => {
-      if (!document.startViewTransition || reduceMotion) { change(); return; }
-      root.classList.add('lb-switching');
-      from.style.viewTransitionName = 'lb-photo';
-      const t = document.startViewTransition(async () => {
-        from.style.viewTransitionName = '';
-        change();
-        to.style.viewTransitionName = 'lb-photo';
-        await to.decode?.().catch(() => {});
-      });
-      t.finished.finally(() => { to.style.viewTransitionName = ''; root.classList.remove('lb-switching'); });
+    // The transform that puts the full-screen photo exactly over `el` on the page
+    const over = (el) => {
+      const a = el.getBoundingClientRect(), b = big.getBoundingClientRect();
+      return `translate(${a.left - b.left}px, ${a.top - b.top}px) scale(${a.width / b.width})`;
     };
-    const open = (i, img) => { from = img; morph(img, big, () => { show(i); lb.showModal(); }); };
-    const close = () => {
-      if (!lb.open) return;
-      const back = from && keyOf(from.closest('.who-zoom')) === keys[cur] ? from : thumbs[cur];
-      const onScreen = (() => { const r = back.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; })();
-      if (onScreen) morph(big, back, () => lb.close());
-      else lb.close();
+    const fade = (el, from, to, o) => el.animate([{ opacity: from }, { opacity: to }], { easing: 'ease', fill: 'both', ...o });
+    const open = async (i, z) => {
+      if (busy || lb.open) return;
+      busy = true; from = z;
+      show(i);
+      big.style.opacity = 0;
+      lb.showModal();
+      const fades = [fade(bg, 0, 1, { duration: 420 }), ...chrome.map((c) => fade(c, 0, 1, { duration: 300, delay: 240 }))];
+      await big.decode?.().catch(() => {});
+      big.style.opacity = '';
+      if (!reduceMotion) {
+        z.style.visibility = 'hidden';
+        await big.animate([{ transform: over(z) }, { transform: 'none' }], { duration: 620, easing: EASE }).finished.catch(() => {});
+        z.style.visibility = '';
+      }
+      fades.forEach((f) => f.cancel());
+      busy = false;
     };
-    zooms.forEach((z) => z.addEventListener('click', () => open(keys.indexOf(keyOf(z)), z.querySelector('img'))));
+    const close = async () => {
+      if (!lb.open || busy) return;
+      busy = true;
+      const back = from && keyOf(from) === keys[cur] ? from : thumbs[cur].closest('.who-zoom');
+      const r = back.getBoundingClientRect(), onScreen = r.bottom > 0 && r.top < innerHeight;
+      if (!reduceMotion) {
+        chrome.forEach((c) => fade(c, 1, 0, { duration: 160 }));
+        fade(bg, 1, 0, { duration: 420, delay: 60 });
+        if (onScreen) back.style.visibility = 'hidden';
+        const end = onScreen ? [{ transform: 'none' }, { transform: over(back) }] : [{ opacity: 1 }, { opacity: 0, transform: 'translateY(16px) scale(0.97)' }];
+        await big.animate(end, { duration: onScreen ? 560 : 300, easing: EASE, fill: 'forwards' }).finished.catch(() => {});
+      }
+      lb.close();
+      back.style.visibility = '';
+      [big, bg, ...chrome].forEach((el) => el.getAnimations().forEach((x) => x.cancel()));
+      busy = false;
+    };
+    const step = (d) => {
+      if (busy) return;
+      show(cur + d);
+      if (!reduceMotion) big.animate([{ opacity: 0, transform: `translateX(${d * 28}px)` }, { opacity: 1, transform: 'none' }], { duration: 420, easing: EASE });
+    };
+    zooms.forEach((z) => z.addEventListener('click', () => open(keys.indexOf(keyOf(z)), z)));
     lb.querySelector('.lb-x').addEventListener('click', close);
     lb.querySelector('.lb-prev').addEventListener('click', () => step(-1));
     lb.querySelector('.lb-next').addEventListener('click', () => step(1));
     lb.addEventListener('cancel', (e) => { e.preventDefault(); close(); });   // Esc, with the animation
-    lb.addEventListener('click', (e) => { if (e.target === lb || e.target.classList.contains('lb-stage')) close(); });
+    lb.addEventListener('click', (e) => { if (e.target === lb || e.target === bg || e.target.classList.contains('lb-stage')) close(); });
     lb.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
