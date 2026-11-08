@@ -335,6 +335,7 @@ html:not(.js) .demo { display: none; }
   .xp-top { flex-direction: column; }
   .xp-when { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; padding-top: 4px; }
   .xp-place::before { content: "·"; margin-right: 8px; }
+  .xp-place:first-child::before { content: none; }
 }
 
 /* Stack as plain text: category, then the tools */
@@ -547,13 +548,18 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
 .ed-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: clamp(28px, 3.4vw, 44px); }
 .ed-actions .btn { flex: none; min-height: 44px; padding-inline: 20px; border-radius: 999px; box-shadow: none; }
 .ed-facts {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px var(--gap); margin: clamp(56px, 7vw, 104px) 0 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px var(--gap); margin: clamp(56px, 7vw, 104px) 0 0;
   padding-top: 22px; border-top: 1px solid var(--strong);
 }
 .ed-facts dt { font: 400 var(--fs-xs)/1.4 var(--mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
 .ed-facts dd { margin-top: 4px; font-size: var(--fs-sm); color: var(--text); }
 .ny-time { margin-left: 6px; color: var(--muted); font-variant-numeric: tabular-nums; }
-@media (max-width: 56rem) { .ed-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 40rem) {
+  /* Phones: one fact per line, the label beside its value */
+  .ed-facts { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .ed-facts > div { display: grid; grid-template-columns: 7rem minmax(0, 1fr); align-items: baseline; gap: 12px; }
+  .ed-facts dd { margin-top: 0; }
+}
 
 /* Sections: label in the margin, content from column four */
 .ed-section { padding-top: var(--s-section); }
