@@ -13,14 +13,17 @@ const widths = [[1440, 900], [390, 844]];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const port = 9333;
-const chrome = spawn(chromePath, ['--headless=new', '--no-sandbox', '--disable-gpu', '--hide-scrollbars', '--no-first-run',
-  `--user-data-dir=${mkdtempSync(join(tmpdir(), 'chk-'))}`, `--remote-debugging-port=${port}`, 'about:blank'], { stdio: 'ignore' });
+const chrome = spawn(chromePath, ['--headless=new', '--no-sandbox', '--disable-gpu', '--hide-scrollbars', '--no-first-run', '--disable-dev-shm-usage',
+  `--user-data-dir=${mkdtempSync(join(tmpdir(), 'chk-'))}`, `--remote-debugging-port=${port}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
+let chromeLog = '';
+chrome.stderr.on('data', (d) => { chromeLog += d; });
+chrome.on('error', (e) => { chromeLog += String(e); });
 let target;
-for (let i = 0; i < 75 && !target; i++) {
+for (let i = 0; i < 150 && !target; i++) {
   await sleep(200);
   try { target = (await (await fetch(`http://127.0.0.1:${port}/json`)).json()).find((t) => t.type === 'page'); } catch {}
 }
-if (!target) { console.error('Chrome did not start'); process.exit(2); }
+if (!target) { console.error(`Chrome did not start (${chromePath})\n${chromeLog.slice(-2000)}`); process.exit(2); }
 const ws = new WebSocket(target.webSocketDebuggerUrl);
 await new Promise((r) => ws.addEventListener('open', r));
 let id = 0; const pending = new Map(); let events = [];
