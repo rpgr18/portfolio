@@ -1831,6 +1831,60 @@ function blackScholes(S, K, T, sigma, r) {
     io.observe(nasdaqDay);
   }
 
+  // ---------- Before/after comparison: one image over another, split by a divider ----------
+  // The range input is the control (arrow keys, Page Up/Down, Home/End, screen readers); a pointer
+  // pressed anywhere on the image moves the divider and drags it. On touch, a sideways drag or a tap
+  // moves it and an up-down swipe still scrolls the page (touch-action: pan-y in the CSS).
+  document.querySelectorAll('.compare').forEach((box) => {
+    const range = box.querySelector('.compare-range');
+    if (!range) return;
+    const name = (side) => box.querySelector(`.compare-layer--${side} .compare-label`)?.textContent.trim();
+    const beforeName = name('before');
+    const afterName = name('after');
+    const set = (pct) => {
+      const p = Math.min(100, Math.max(0, pct));
+      const v = Math.round(p);
+      box.style.setProperty('--pos', `${p}%`);
+      range.value = String(v);
+      range.setAttribute('aria-valuetext', beforeName && afterName ? `${v}% ${beforeName}, ${100 - v}% ${afterName}` : `${v}%`);
+    };
+    const toPointer = (e) => {
+      const r = box.getBoundingClientRect();
+      set(((e.clientX - r.left) / r.width) * 100);
+    };
+    range.addEventListener('input', () => set(Number(range.value)));
+    let drag = null;
+    let start = null;
+    box.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      drag = e.pointerId;
+      start = { x: e.clientX, y: e.clientY, sideways: false };
+      box.setPointerCapture(e.pointerId);
+      if (e.pointerType !== 'touch') {
+        e.preventDefault();   // no text selection or image drag; keep the range focused for the keys
+        range.focus({ preventScroll: true });
+        toPointer(e);
+      }
+    });
+    box.addEventListener('pointermove', (e) => {
+      if (e.pointerId !== drag) return;
+      if (e.pointerType === 'touch' && !start.sideways) {   // wait until the finger is clearly moving sideways
+        const dx = Math.abs(e.clientX - start.x), dy = Math.abs(e.clientY - start.y);
+        if (dx < 6 || dx <= dy) return;
+        start.sideways = true;
+      }
+      toPointer(e);
+    });
+    box.addEventListener('pointerup', (e) => {
+      if (e.pointerId !== drag) return;
+      const still = Math.abs(e.clientX - start.x) < 10 && Math.abs(e.clientY - start.y) < 10;
+      if (e.pointerType === 'touch' && still) toPointer(e);   // a tap moves the divider too
+      drag = null;
+    });
+    box.addEventListener('pointercancel', (e) => { if (e.pointerId === drag) drag = null; });   // the page scrolled instead
+    set(Number(range.value));
+  });
+
   // ---------- Copy buttons on code blocks ----------
   document.querySelectorAll('[data-copy-code]').forEach((btn) => btn.addEventListener('click', async () => {
     const code = btn.closest('.run-it')?.querySelector('code')?.innerText.trim();
