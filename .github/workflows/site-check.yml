@@ -1,0 +1,22 @@
+# Checks every page in a real browser on each push: no script errors, no missing files,
+# no sideways scrolling on a phone, and alt text on every image.
+name: Site check
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Serve the site
+        run: python3 -m http.server 8000 --bind 127.0.0.1 >/dev/null 2>&1 &
+      - name: Check every page
+        run: node .github/scripts/check-site.mjs http://127.0.0.1:8000 "$(command -v google-chrome || command -v chromium)"

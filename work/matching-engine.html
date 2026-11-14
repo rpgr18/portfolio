@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=6d1b202c">
+  <link rel="stylesheet" href="../assets/site.css?v=8aa410e7">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -222,6 +222,13 @@
             <li>Google. <em>GoogleTest.</em> <a href="https://github.com/google/googletest" target="_blank" rel="noopener">github.com/google/googletest</a></li>
           </ol>
           </div>
+          <div class="run-it">
+            <p class="run-it-h">Run it yourself</p>
+            <pre><code>git clone https://github.com/rpgr18/matching-engine.git &amp;&amp; cd matching-engine
+cmake -B build -G Ninja &amp;&amp; cmake --build build &amp;&amp; ctest --test-dir build
+./build/bench/lob_bench</code></pre>
+            <button class="btn-copy" type="button" data-copy-code>Copy</button>
+          </div>
           <div class="article-links">
             <a class="btn btn-secondary" href="https://rpgr18.github.io/matching-engine/" target="_blank" rel="noopener">Try it live <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
             <a class="btn btn-secondary" href="https://github.com/rpgr18/matching-engine" target="_blank" rel="noopener">Code on GitHub <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
@@ -245,6 +252,6 @@
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=6d1b202c"></script>
+  <script src="../assets/site.js?v=8aa410e7"></script>
 </body>
 </html>

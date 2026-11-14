@@ -189,7 +189,13 @@ function blackScholes(S, K, T, sigma, r) {
   // A tab list: click a demo, or move between them with the arrow, Home and End keys.
   const demoTabs = [...document.querySelectorAll('.demo-picker [role="tab"]')];
   if (demoTabs.length) {
+    // On narrow screens the tabs drop their intros, so the chosen one is shown under the row instead
+    const now = document.createElement('p');
+    now.className = 'pick-now';
+    now.setAttribute('aria-hidden', 'true');
+    demoTabs[0].closest('.demo-picker').after(now);
     const select = (tab, focus) => {
+      now.textContent = tab.querySelector('.pick-d')?.textContent || '';
       for (const t of demoTabs) {
         const on = t === tab;
         t.setAttribute('aria-selected', String(on));
@@ -207,6 +213,7 @@ function blackScholes(S, K, T, sigma, r) {
         select(demoTabs[(to + demoTabs.length) % demoTabs.length], true);
       });
     });
+    select(demoTabs.find((t) => t.getAttribute('aria-selected') === 'true') || demoTabs[0], false);
   }
 
   // ---------- Pricer ----------
@@ -604,11 +611,133 @@ function blackScholes(S, K, T, sigma, r) {
     });
   }
 
+  // ---------- Command menu: ⌘K (or Ctrl+K, or /) to jump anywhere or run an action ----------
+  // Built on first open from one list, so every page offers the same places with the right paths.
+  const base = /\/work\//.test(location.pathname) ? '../' : '';
+  const EMAIL = 'greene.ry@northeastern.edu';
+  const places = [
+    ['Work', 'index.html#projects', 'Section', 'projects selected'],
+    ['Demos', 'index.html#demos', 'Section', 'live dsa-cli options pricer'],
+    ['Experience', 'index.html#experience', 'Section', 'jobs internships flow traders flexcar khoury general dynamics'],
+    ['Education', 'index.html#education', 'Section', 'northeastern sydney school'],
+    ['Stack', 'index.html#stack', 'Section', 'skills languages tools'],
+    ['Contact', 'index.html#contact', 'Section', 'email reach'],
+    ['whoami', 'whoami.html', 'Page', 'photos personal about'],
+    ['Matching Engine', 'work/matching-engine.html', 'Project', 'c++ order book itch'],
+    ['Marine Seismic Deep Learning', 'work/marine-seismic.html', 'Project', 'pytorch cnn faults horizons'],
+    ['dsa-cli', 'work/dsa-cli.html', 'Project', 'python neetcode terminal'],
+    ['Options Pricing & Greeks Workbench', 'work/options-pricing.html', 'Project', 'black-scholes volatility'],
+    ['Portfolio Construction Workbench', 'work/portfolio-optimizer.html', 'Project', 'allocators covariance'],
+    ['SurfPy API', 'work/surfpy-api.html', 'Project', 'flask surf forecast noaa'],
+    ['Java Paper-Trading Simulator', 'work/papertrade-sim.html', 'Project', 'java stocks swing'],
+  ].map(([t, href, kind, k]) => ({ t, kind, k, go: () => { location.href = base + href; } }));
+  const actions = [
+    { t: 'Copy email', kind: 'Action', k: 'mail address', go: async () => { try { await navigator.clipboard.writeText(EMAIL); showToast('Email copied'); } catch { location.href = 'mailto:' + EMAIL; } } },
+    { t: 'Send an email', kind: 'Action', k: 'mail contact', go: () => { location.href = 'mailto:' + EMAIL; } },
+    { t: 'Switch theme', kind: 'Action', k: 'dark light mode', go: () => toggleTheme() },
+    { t: 'GitHub', kind: 'Link', k: 'code repositories', go: () => window.open('https://github.com/rpgr18', '_blank', 'noopener') },
+    { t: 'LinkedIn', kind: 'Link', k: 'profile', go: () => window.open('https://www.linkedin.com/in/rpgr18/', '_blank', 'noopener') },
+    { t: 'Print this page', kind: 'Action', k: 'pdf save resume', go: () => setTimeout(() => print(), 50) },
+  ];
+  const commands = [...places, ...actions];
+  let palette = null;
+  const openPalette = () => {
+    if (!palette) {
+      palette = document.createElement('dialog');
+      palette.className = 'cmd';
+      palette.setAttribute('aria-label', 'Go to');
+      palette.innerHTML = '<div class="cmd-box"><input class="cmd-in" type="text" placeholder="Go to a project, section or action" aria-label="Search" aria-controls="cmd-list" aria-autocomplete="list" autocomplete="off" spellcheck="false">'
+        + '<ul class="cmd-list" id="cmd-list" role="listbox" aria-label="Results"></ul></div>';
+      document.body.append(palette);
+      const input = palette.querySelector('.cmd-in'), list = palette.querySelector('.cmd-list');
+      let shown = [], cur = 0;
+      const render = () => {
+        const q = input.value.trim().toLowerCase();
+        shown = commands.filter((c) => !q || q.split(/\s+/).every((w) => (c.t + ' ' + c.kind + ' ' + c.k).toLowerCase().includes(w)));
+        cur = Math.min(cur, Math.max(0, shown.length - 1));
+        list.innerHTML = shown.length ? shown.map((c, i) => `<li role="option" id="cmd-${i}" aria-selected="${i === cur}"><span>${c.t.replace('&', '&amp;')}</span><small>${c.kind}</small></li>`).join('')
+          : '<li class="cmd-empty">Nothing matches. Try a project name, or “email”.</li>';
+        input.setAttribute('aria-activedescendant', shown.length ? `cmd-${cur}` : '');
+        list.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
+      };
+      const run = (i) => { const c = shown[i]; if (!c) return; palette.close(); c.go(); };
+      input.addEventListener('input', () => { cur = 0; render(); });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); cur = (cur + (e.key === 'ArrowDown' ? 1 : -1) + shown.length) % Math.max(1, shown.length); render(); }
+        if (e.key === 'Enter') { e.preventDefault(); run(cur); }
+      });
+      list.addEventListener('mousemove', (e) => { const li = e.target.closest('[role="option"]'); if (!li) return; const i = +li.id.slice(4); if (i !== cur) { cur = i; render(); } });
+      list.addEventListener('click', (e) => { const li = e.target.closest('[role="option"]'); if (li) run(+li.id.slice(4)); });
+      palette.addEventListener('click', (e) => { if (e.target === palette) palette.close(); });
+      palette.render = render;
+    }
+    if (palette.open) return;
+    const input = palette.querySelector('.cmd-in');
+    input.value = '';
+    palette.render();
+    palette.showModal();
+    input.focus();
+  };
+  addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    const typing = e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]');
+    if (((e.metaKey || e.ctrlKey) && k === 'k') || (k === '/' && !typing && !e.metaKey && !e.ctrlKey && !e.altKey)) {
+      if (document.querySelector('.lb[open]')) return;
+      e.preventDefault();
+      if (palette?.open) palette.close(); else openPalette();
+    }
+  });
+  // A small ⌘K key in the top bar, for people with a keyboard
+  const themeBtn = document.querySelector('.topbar .theme-toggle');
+  if (themeBtn && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const mac = /Mac|iPhone|iPad/.test(navigator.platform);
+    const kbtn = document.createElement('button');
+    kbtn.type = 'button';
+    kbtn.className = 'tb-btn tb-cmd';
+    kbtn.setAttribute('aria-label', 'Go to a project, section or action');
+    kbtn.innerHTML = `<kbd>${mac ? '⌘' : 'Ctrl'}</kbd><kbd>K</kbd>`;
+    kbtn.addEventListener('click', openPalette);
+    themeBtn.before(kbtn);
+  }
+
+  // ---------- Footer: when the site last changed, from its latest commit on GitHub ----------
+  const colophon = document.querySelector('.site-foot .colophon');
+  if (colophon) {
+    const stamp = (iso) => {
+      const d = new Date(iso); if (isNaN(d)) return;
+      const el = document.createElement('span');
+      el.className = 'updated';
+      el.textContent = ` · Updated ${d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`;
+      colophon.append(el);
+    };
+    let cached = null;
+    try { cached = JSON.parse(localStorage.getItem('site-updated') || 'null'); } catch {}
+    if (cached && Date.now() - cached.at < 6 * 3600e3) stamp(cached.iso);
+    else if (location.hostname.endsWith('github.io')) {
+      fetch('https://api.github.com/repos/rpgr18/portfolio/commits?per_page=1')
+        .then((r) => (r.ok ? r.json() : null))
+        .then((j) => { const iso = j?.[0]?.commit?.committer?.date; if (!iso) return; stamp(iso); try { localStorage.setItem('site-updated', JSON.stringify({ iso, at: Date.now() })); } catch {} })
+        .catch(() => {});
+    }
+  }
+
+  // ---------- Print: open the collapsed "details" so they print, then put them back ----------
+  let printOpened = [];
+  addEventListener('beforeprint', () => { printOpened = [...document.querySelectorAll('details:not([open])')]; printOpened.forEach((d) => { d.open = true; }); });
+  addEventListener('afterprint', () => { printOpened.forEach((d) => { d.open = false; }); printOpened = []; });
+
+  // ---------- Copy buttons on code blocks ----------
+  document.querySelectorAll('[data-copy-code]').forEach((btn) => btn.addEventListener('click', async () => {
+    const code = btn.closest('.run-it')?.querySelector('code')?.innerText.trim();
+    if (!code) return;
+    try { await navigator.clipboard.writeText(code); showToast('Copied'); } catch {}
+  }));
+
   // ---------- Keys: T switches the theme, 1–5 jump to the sections, 6 opens whoami ----------
   addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
     if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
-    if (document.querySelector('.lb[open]')) return;
+    if (document.querySelector('.lb[open], .cmd[open]')) return;
     if (e.key === 't' || e.key === 'T') { e.preventDefault(); toggleTheme(); return; }
     const link = links.find((a) => a.dataset.key === e.key);
     if (!link) return;
