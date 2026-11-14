@@ -941,6 +941,31 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
   .lib .who-zoom:hover img { scale: 1.03; }
 }
 .lib .who-zoom:focus-visible { outline-offset: 3px; }
+/* whoami: each photo develops like a print in the tray as it comes into view, from a pale,
+   colourless sheet to the full picture; the header types its command first */
+@media (prefers-reduced-motion: no-preference) {
+  .js .lib > .who-zoom.is-in img { animation: develop 2.6s cubic-bezier(0.3, 0, 0.15, 1) calc(var(--delay, 0s) + 0.1s) both; }
+  .lib > .who-zoom:nth-child(2) { --delay: 0.09s; }
+  .lib > .who-zoom:nth-child(3) { --delay: 0.18s; }
+  .lib > .who-zoom:nth-child(4) { --delay: 0.27s; }
+  .lib > .who-zoom:nth-child(5) { --delay: 0.36s; }
+  .lib > .who-zoom:nth-child(6) { --delay: 0.45s; }
+  .lib > .who-zoom:nth-child(n+7) { --delay: 0.54s; }
+  .who-head.is-typing h1 { opacity: 0; }
+  .who-head.is-typed h1 { animation: appear 0.8s var(--appear-ease) both; }
+}
+@keyframes develop {
+  0% { filter: grayscale(1) brightness(1.75) contrast(0.45) blur(1.5px); }
+  45% { filter: grayscale(0.75) brightness(1.18) contrast(0.85) blur(0); }
+  100% { filter: none; }
+}
+@keyframes develop-dark {
+  0% { filter: grayscale(1) brightness(0.25) contrast(1.4) blur(1.5px); }
+  45% { filter: grayscale(0.75) brightness(0.8) contrast(1.1) blur(0); }
+  100% { filter: none; }
+}
+:root[data-theme="dark"] .lib > .who-zoom.is-in img { animation-name: develop-dark; }
+.who-label .caret { display: inline-block; width: 0.55em; height: 1.1em; margin-left: 2px; vertical-align: -0.18em; background: currentColor; animation: caret 1s steps(1) infinite; }
 
 /* Full screen: one photo at a time on the page's own background (white, or dark in the dark theme), with a counter */
 .lb {
@@ -961,6 +986,15 @@ html:has(.lb[open]) { overflow: hidden; }
 .lb button svg { width: 18px; height: 18px; }
 .lb-nav { display: flex; gap: 8px; }
 .lb-prev svg { rotate: 180deg; }
+.lb-foot { justify-content: space-between; }
+.lb-strip { display: flex; gap: 6px; min-width: 0; padding: 4px; margin: -4px; overflow-x: auto; scrollbar-width: none; }
+.lb-strip::-webkit-scrollbar { display: none; }
+.lb .lb-strip button { flex: none; width: 52px; height: 36px; border: 0; border-radius: 4px; overflow: hidden; opacity: 0.4; transition: opacity 0.3s var(--ease), translate 0.4s var(--appear-ease); }
+.lb .lb-strip button:hover { opacity: 0.8; }
+.lb .lb-strip button[aria-current="true"] { opacity: 1; translate: 0 -3px; box-shadow: 0 0 0 1px var(--bg), 0 0 0 2px var(--strong); }
+.lb .lb-strip button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; opacity: 1; }
+.lb-strip img { display: block; width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 40rem) { .lb .lb-strip button { width: 40px; height: 30px; } }
 @media (max-width: 40rem) { .lb-stage { padding: 0; } }   /* edge to edge on phones */
 
 /* Command menu (⌘K): a small sheet near the top of the screen */

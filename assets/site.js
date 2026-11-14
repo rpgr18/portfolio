@@ -457,6 +457,24 @@ function blackScholes(S, K, T, sigma, r) {
     new ResizeObserver(justify).observe(lib);
   }
 
+  // ---------- whoami: the header types its command, then prints the answer ----------
+  const whoHead = document.querySelector('.who-head');
+  if (whoHead && !reduceMotion) {
+    const label = whoHead.querySelector('.who-label'), cmd = label.textContent.replace(/^\$\s*/, '');
+    whoHead.classList.add('is-typing');
+    label.innerHTML = '$ <span class="caret"></span>';
+    let i = 0;
+    const type = () => {
+      label.innerHTML = `$ ${cmd.slice(0, i)}<span class="caret"></span>`;
+      if (i++ < cmd.length) return setTimeout(type, 75 + Math.random() * 55);
+      setTimeout(() => {
+        label.textContent = `$ ${cmd}`;
+        whoHead.classList.replace('is-typing', 'is-typed');
+      }, 280);
+    };
+    setTimeout(type, 380);
+  }
+
   // ---------- whoami: any photo opens full screen ----------
   // The photo lifts out of its place in the rows and glides to full size while the page fades to its
   // own background; closing sends it back to where it came from. Arrow keys, the buttons or a swipe
@@ -470,7 +488,7 @@ function blackScholes(S, K, T, sigma, r) {
     lb.innerHTML = '<div class="lb-bg"></div>'
       + '<div class="lb-bar"><span class="lb-n" aria-live="polite"></span><button class="lb-x" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></button></div>'
       + '<div class="lb-stage"><img alt="" decoding="async"></div>'
-      + '<div class="lb-foot"><div class="lb-nav"><button class="lb-prev" type="button" aria-label="Previous photo"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button><button class="lb-next" type="button" aria-label="Next photo"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div></div>';
+      + '<div class="lb-foot"><div class="lb-strip" role="group" aria-label="All photos"></div><div class="lb-nav"><button class="lb-prev" type="button" aria-label="Previous photo"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button><button class="lb-next" type="button" aria-label="Next photo"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div></div>';
     document.body.append(lb);
     const bg = lb.querySelector('.lb-bg'), big = lb.querySelector('.lb-stage img'), label = lb.querySelector('.lb-n');
     const chrome = [lb.querySelector('.lb-bar'), lb.querySelector('.lb-foot')];
@@ -481,12 +499,26 @@ function blackScholes(S, K, T, sigma, r) {
     const thumbs = keys.map((k) => firsts.get(k));
     const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
     let cur = 0, from = null, busy = false;
+    // A strip of every photo along the bottom, like a contact sheet: the current one stands out
+    const strip = lb.querySelector('.lb-strip');
+    const cells = thumbs.map((t, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('aria-label', `Photo ${i + 1}: ${t.alt}`);
+      b.innerHTML = `<img src="${t.getAttribute('src').replace(/-\d+\.webp$/, '-800.webp')}" alt="" loading="lazy" decoding="async">`;
+      b.addEventListener('click', () => { if (i !== cur && !busy) { const d = i > cur ? 1 : -1; show(i); if (!reduceMotion) big.animate([{ opacity: 0, transform: `translateX(${d * 28}px)` }, { opacity: 1, transform: 'none' }], { duration: 420, easing: EASE }); } });
+      strip.append(b);
+      return b;
+    });
     const show = (i) => {
       cur = (i + thumbs.length) % thumbs.length;
       const t = thumbs[cur], want = cur;
       big.src = t.currentSrc || t.src;   // the copy the page already has, so it's there at once...
       big.alt = t.alt;
       label.textContent = `${cur + 1} / ${thumbs.length}`;
+      cells.forEach((c, j) => (j === cur ? c.setAttribute('aria-current', 'true') : c.removeAttribute('aria-current')));
+      const c = cells[cur], sl = strip.scrollLeft, w = strip.clientWidth;
+      if (c.offsetLeft < sl || c.offsetLeft + c.offsetWidth > sl + w) strip.scrollTo({ left: c.offsetLeft - (w - c.offsetWidth) / 2, behavior: reduceMotion ? 'auto' : 'smooth' });
       const sharp = new Image();         // ...and the sharpest size for the screen once it has loaded
       sharp.sizes = '100vw'; sharp.srcset = t.getAttribute('srcset') || ''; sharp.src = t.getAttribute('src');
       sharp.decode().then(() => { if (cur === want && lb.open) big.src = sharp.currentSrc || sharp.src; }).catch(() => {});
