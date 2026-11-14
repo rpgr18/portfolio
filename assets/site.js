@@ -457,24 +457,6 @@ function blackScholes(S, K, T, sigma, r) {
     new ResizeObserver(justify).observe(lib);
   }
 
-  // ---------- whoami: the header types its command, then prints the answer ----------
-  const whoHead = document.querySelector('.who-head');
-  if (whoHead && !reduceMotion) {
-    const label = whoHead.querySelector('.who-label'), cmd = label.textContent.replace(/^\$\s*/, '');
-    whoHead.classList.add('is-typing');
-    label.innerHTML = '$ <span class="caret"></span>';
-    let i = 0;
-    const type = () => {
-      label.innerHTML = `$ ${cmd.slice(0, i)}<span class="caret"></span>`;
-      if (i++ < cmd.length) return setTimeout(type, 75 + Math.random() * 55);
-      setTimeout(() => {
-        label.textContent = `$ ${cmd}`;
-        whoHead.classList.replace('is-typing', 'is-typed');
-      }, 280);
-    };
-    setTimeout(type, 380);
-  }
-
   // ---------- whoami: any photo opens full screen ----------
   // The photo lifts out of its place in the rows and glides to full size while the page fades to its
   // own background; closing sends it back to where it came from. Arrow keys, the buttons or a swipe
