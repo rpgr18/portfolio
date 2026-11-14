@@ -216,6 +216,43 @@ function blackScholes(S, K, T, sigma, r) {
     select(demoTabs.find((t) => t.getAttribute('aria-selected') === 'true') || demoTabs[0], false);
   }
 
+  // ---------- Demos: a link that opens a demo as you left it ----------
+  // ?demo=pricer&type=put&S=105&K=100&days=90&vol=35&r=4.5#demos, or ?demo=cli&cmd=hint#demos.
+  // Read before the demos start, so they open on the linked state; "Copy link" writes one.
+  const linkQ = new URLSearchParams(location.search);
+  const SLIDER_IDS = { S: 's-spot', K: 's-strike', days: 's-days', vol: 's-vol', r: 's-rate' };
+  if (linkQ.get('demo') === 'pricer' && $('pricer')) {
+    $('tab-pricer')?.click();
+    const kind = $(`kind-${linkQ.get('type')}`);
+    if (kind) kind.checked = true;
+    for (const [k, id] of Object.entries(SLIDER_IDS)) {
+      const v = Number(linkQ.get(k));
+      if (linkQ.has(k) && Number.isFinite(v)) $(id).value = v;   // a range input clamps to its own min and max
+    }
+  }
+  if (linkQ.get('demo') === 'cli') $('tab-cli')?.click();
+  const stage = document.querySelector('.demo-stage');
+  if (stage && demoTabs.length) {
+    const share = document.createElement('button');
+    share.type = 'button';
+    share.className = 'btn-copy demo-share';
+    share.textContent = 'Copy link';
+    stage.append(share);
+    share.addEventListener('click', async () => {
+      const q = new URLSearchParams();
+      if (!$('pricer').hidden) {
+        q.set('demo', 'pricer');
+        q.set('type', document.querySelector('input[name="kind"]:checked').value);
+        for (const [k, id] of Object.entries(SLIDER_IDS)) q.set(k, $(id).value);
+      } else {
+        q.set('demo', 'cli');
+        q.set('cmd', document.querySelector('#cli-demo [aria-pressed="true"]')?.dataset.cmd || 'run');
+      }
+      const url = `${location.origin}${location.pathname}?${q}#demos`;
+      try { await navigator.clipboard.writeText(url); showToast('Link copied'); } catch { history.replaceState(null, '', url); }
+    });
+  }
+
   // ---------- Pricer ----------
   if ($('pricer')) {
     const sliders = {
@@ -400,7 +437,8 @@ function blackScholes(S, K, T, sigma, r) {
       }
     };
     buttons.forEach((b) => b.addEventListener('click', () => play(b.dataset.cmd, !reduceMotion)));
-    play('run', false);   // the page opens on a finished run
+    const linked = linkQ.get('demo') === 'cli' && Object.hasOwn(SESSIONS, linkQ.get('cmd') || '') ? linkQ.get('cmd') : 'run';
+    play(linked, false);   // the page opens on a finished run (or the one a link asked for)
   }
 
   // ---------- Top bar ----------
@@ -725,6 +763,82 @@ function blackScholes(S, K, T, sigma, r) {
   let printOpened = [];
   addEventListener('beforeprint', () => { printOpened = [...document.querySelectorAll('details:not([open])')]; printOpened.forEach((d) => { d.open = true; }); });
   addEventListener('afterprint', () => { printOpened.forEach((d) => { d.open = false; }); printOpened = []; });
+
+  // ---------- Matching engine: race the native numbers in this browser ----------
+  // The engine's WebAssembly build replays its benchmark in a worker; the bars share one scale.
+  const race = $('race');
+  if (race) {
+    const btn = race.querySelector('.btn-race');
+    const note = race.querySelector('.race-note');
+    const rows = [...race.querySelectorAll('.race-bars li')];
+    const you = (k) => race.querySelector(`[data-race="${k}"]`);
+    const scale = () => {
+      const max = Math.max(...rows.map((li) => Number(li.style.getPropertyValue('--v')) || 0));
+      rows.forEach((li) => li.style.setProperty('--max', max));
+    };
+    scale();
+    const int = (n) => Math.round(n).toLocaleString('en-US');
+    btn.addEventListener('click', () => {
+      btn.disabled = true;
+      btn.textContent = 'Running…';
+      race.classList.add('is-running');
+      for (const k of ['dense', 'map']) { you(k).style.removeProperty('--v'); you(k).querySelector('.race-v').textContent = '–'; }
+      scale();
+      const src = document.querySelector('script[src*="site.js"]').src;
+      const worker = new Worker(new URL('lob/race-worker.js', src), { type: 'module' });
+      const done = (text) => {
+        note.textContent = text;
+        btn.disabled = false;
+        btn.textContent = 'Run it again';
+        race.classList.remove('is-running');
+        worker.terminate();
+      };
+      worker.onmessage = ({ data }) => {
+        if (data.phase === 'dense') note.textContent = 'Generating a million requests, then replaying them through the dense ladder…';
+        if (data.phase === 'map') note.textContent = 'Now the same requests through std::map and unordered_map…';
+        if (data.phase === 'error') done(`The benchmark couldn’t run here: ${data.message}`);
+        if (data.phase !== 'done') return;
+        const rate = (ms) => data.n / ms / 1000;   // million requests a second
+        const a = rate(data.denseMs), b = rate(data.mapMs);
+        [['dense', a], ['map', b]].forEach(([k, v]) => {
+          you(k).style.setProperty('--v', v.toFixed(2));
+          you(k).querySelector('.race-v').textContent = `${v.toFixed(1)}M/s`;
+        });
+        scale();
+        const pct = Math.round((a / 56.2) * 100);
+        done(`${a.toFixed(1)}M requests a second here, ${pct}% of the M2 running natively, and ${(a / b).toFixed(1)}× faster than std::map in this browser (3.1× natively). ` +
+          (data.agree ? `Both designs made the same ${int(data.trades)} trades.` : 'The two designs disagreed on the trades, which would be a bug.'));
+      };
+      worker.onerror = (e) => { e.preventDefault(); done('The benchmark couldn’t run in this browser.'); };
+      worker.postMessage({ requests: Number(race.dataset.requests), reps: Number(race.dataset.reps) });
+    });
+  }
+
+  // ---------- Project pages: whether the project's tests pass on main right now ----------
+  // From the latest finished CI run on GitHub, cached for six hours so visitors stay well under
+  // the API's rate limit. Says nothing if GitHub can't be reached.
+  document.querySelectorAll('[data-ci]').forEach(async (el) => {
+    const [repo, workflow] = el.dataset.ci.split(' ');
+    const key = `ci:${repo}`;
+    let run;
+    try { const c = JSON.parse(localStorage.getItem(key)); if (c && Date.now() - c.at < 6 * 3600e3) run = c.run; } catch {}
+    if (!run) {
+      try {
+        const r = await fetch(`https://api.github.com/repos/rpgr18/${repo}/actions/workflows/${workflow}/runs?branch=main&status=completed&per_page=1`);
+        const latest = r.ok && (await r.json()).workflow_runs?.[0];
+        if (!latest) return;
+        run = { ok: latest.conclusion === 'success', url: latest.html_url, when: latest.updated_at };
+        try { localStorage.setItem(key, JSON.stringify({ at: Date.now(), run })); } catch {}
+      } catch { return; }
+    }
+    const when = new Date(run.when).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const a = document.createElement('a');
+    a.href = run.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = run.ok ? `Tests pass on main as of the last run, ${when}.` : `The last test run on main, ${when}, failed.`;
+    el.replaceChildren(a);
+  });
 
   // ---------- Copy buttons on code blocks ----------
   document.querySelectorAll('[data-copy-code]').forEach((btn) => btn.addEventListener('click', async () => {

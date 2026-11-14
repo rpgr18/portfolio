@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=8aa410e7">
+  <link rel="stylesheet" href="../assets/site.css?v=d04ec986">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -96,11 +96,13 @@
         <div class="full"><dt>Outcome</dt><dd>56M requests a second on one core with a 70&nbsp;ns p99, no differences from a reference model over 36M fuzzed requests, and a real NASDAQ trading day of 368M messages rebuilt in 25.5&nbsp;s.</dd></div>
       </dl>
       <ul class="cs-metrics" aria-label="Key numbers">
-        <li><b>56M</b><span>requests a second on one core</span></li>
-        <li><b>70 ns</b><span>p99 latency per request</span></li>
-        <li><b>36M</b><span>fuzzed requests, zero differences</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/matching-engine/blob/b7bab44b2a71f924be46fff9459a21c69bf4de96/results/epyc-9v45-book.json#L7" target="_blank" rel="noopener"><b>56M</b><span class="sr-only"> (source: results/epyc-9v45-book.json, line 7)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">results/epyc-9v45-book.json, line 7</span><code>{&quot;impl&quot;: &quot;dense+flat&quot;, &quot;mreq_s&quot;: 56.0701, &quot;best_mreq_s&quot;: 56.2139, &quot;ns_per_req&quot;: 17.8348,</code></span></a><span>requests a second on one core</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/matching-engine/blob/b7bab44b2a71f924be46fff9459a21c69bf4de96/results/epyc-9v45-book.json#L8" target="_blank" rel="noopener"><b>70 ns</b><span class="sr-only"> (source: results/epyc-9v45-book.json, line 8)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">results/epyc-9v45-book.json, line 8</span><code>&quot;latency_ns&quot;: { … &quot;p99&quot;: 70.107, … }</code></span></a><span>p99 latency per request</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/matching-engine/blob/b7bab44b2a71f924be46fff9459a21c69bf4de96/tests/test_differential.cpp#L5-L6" target="_blank" rel="noopener"><b>36M</b><span class="sr-only"> (source: tests/test_differential.cpp, lines 5–6)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">tests/test_differential.cpp, lines 5–6</span><code>// The default run is sized for CI. For a soak run:
+//   LOB_FUZZ_OPS=10000000 LOB_FUZZ_SEED=$RANDOM ./build/tests/lob_tests --gtest_filter=&#x27;Differential*&#x27;</code></span></a><span>fuzzed requests, zero differences</span></li>
         <li><b>287</b><span>tests</span></li>
       </ul>
+      <p class="cs-proof-note">Underlined numbers link to the line they come from. <span data-ci="matching-engine ci.yml"></span></p>
       <div class="cs-body">
         <nav class="cs-toc" aria-label="On this page">
           <p>Contents</p>
@@ -149,6 +151,19 @@
               </tbody>
             </table>
             <p class="caption">One core, requests per second. The M2’s timer ticks every 41.67 ns, so its percentiles are upper bounds.</p>
+          </div>
+          <div class="race" id="race" data-requests="1000000" data-reps="3">
+            <div class="race-top">
+              <p class="race-h">Race it in this browser</p>
+              <button class="btn-race" type="button">Run the benchmark</button>
+            </div>
+            <ul class="race-bars" aria-label="Throughput on balanced flow, in millions of requests a second">
+              <li class="is-native" style="--v: 56.2"><span class="race-k">Apple M2 Pro, native</span><b class="race-v">56.2M/s</b><i aria-hidden="true"></i></li>
+              <li class="is-native" style="--v: 56.1"><span class="race-k">AMD EPYC 9V45, native</span><b class="race-v">56.1M/s</b><i aria-hidden="true"></i></li>
+              <li class="is-you" data-race="dense"><span class="race-k">This browser, WebAssembly</span><b class="race-v">–</b><i aria-hidden="true"></i></li>
+              <li class="is-you is-map" data-race="map"><span class="race-k">This browser, <code>std::map</code> + <code>unordered_map</code></span><b class="race-v">–</b><i aria-hidden="true"></i></li>
+            </ul>
+            <p class="caption race-note" aria-live="polite">The same C++ and the same order flow, compiled to WebAssembly and run on your machine: a million requests, best of three. The native runs replay five million.</p>
           </div>
           <figure class="chart">
             <img class="only-light" src="../img/matching-engine/throughput-light.svg" alt="Bar chart of throughput by storage design for four workloads; the dense ladder with the flat index is fastest on all four" width="928" height="504" loading="lazy">
@@ -252,6 +267,6 @@ cmake -B build -G Ninja &amp;&amp; cmake --build build &amp;&amp; ctest --test-d
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=8aa410e7"></script>
+  <script src="../assets/site.js?v=d04ec986"></script>
 </body>
 </html>

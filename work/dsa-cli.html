@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=8aa410e7">
+  <link rel="stylesheet" href="../assets/site.css?v=d04ec986">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -96,11 +96,13 @@
         <div class="full"><dt>Outcome</dt><dd>All 150 NeetCode problems with 968 test cases, graded Big-O and spaced repetition, with two dependencies.</dd></div>
       </dl>
       <ul class="cs-metrics" aria-label="Key numbers">
-        <li><b>150</b><span>problems</span></li>
-        <li><b>968</b><span>test cases</span></li>
-        <li><b>977</b><span>tests of the tool itself</span></li>
-        <li><b>2</b><span>dependencies</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/dsa-cli/blob/bee0bf66fd08630baad9901aa266901f0ca67191/tests/test_catalogue.py#L38-L39" target="_blank" rel="noopener"><b>150</b><span class="sr-only"> (source: tests/test_catalogue.py, lines 38–39)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">tests/test_catalogue.py, lines 38–39</span><code>def test_exactly_150_problems():
+assert len(PROBLEMS) == 150</code></span></a><span>problems</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/dsa-cli/blob/bee0bf66fd08630baad9901aa266901f0ca67191/README.md#L41" target="_blank" rel="noopener"><b>968</b><span class="sr-only"> (source: README.md, line 41)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">README.md, line 41</span><code>- **Real tests, real edge cases** — 968 cases including the empty inputs, single elements,</code></span></a><span>test cases</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/dsa-cli/blob/bee0bf66fd08630baad9901aa266901f0ca67191/README.md#L205" target="_blank" rel="noopener"><b>977</b><span class="sr-only"> (source: README.md, line 205)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">README.md, line 205</span><code>pytest              # 977 tests, ~20s</code></span></a><span>tests of the tool itself</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/dsa-cli/blob/bee0bf66fd08630baad9901aa266901f0ca67191/pyproject.toml#L25" target="_blank" rel="noopener"><b>2</b><span class="sr-only"> (source: pyproject.toml, line 25)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">pyproject.toml, line 25</span><code>dependencies = [&quot;click&gt;=8.1&quot;, &quot;rich&gt;=13.0&quot;]</code></span></a><span>dependencies</span></li>
       </ul>
+      <p class="cs-proof-note">Underlined numbers link to the line they come from. <span data-ci="dsa-cli ci.yml"></span></p>
       <div class="cs-body">
         <nav class="cs-toc" aria-label="On this page">
           <p>Contents</p>
@@ -175,6 +177,6 @@ dsa run valid-anagram</code></pre>
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=8aa410e7"></script>
+  <script src="../assets/site.js?v=d04ec986"></script>
 </body>
 </html>

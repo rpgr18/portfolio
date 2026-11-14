@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=8aa410e7">
+  <link rel="stylesheet" href="../assets/site.css?v=d04ec986">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -96,11 +96,20 @@
         <div class="full"><dt>Outcome</dt><dd>Seven allocators and six covariance estimators compared on identical inputs, with every optimizer answer carrying a KKT residual around 1e-10.</dd></div>
       </dl>
       <ul class="cs-metrics" aria-label="Key numbers">
-        <li><b>7</b><span>allocators</span></li>
-        <li><b>6</b><span>covariance estimators</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/portfolio-optimizer/blob/467106270e524d31ceaa738d5f5eeaaf819e6121/portlib/portfolios.py#L35-L43" target="_blank" rel="noopener"><b>7</b><span class="sr-only"> (source: portlib/portfolios.py, lines 35–43)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">portlib/portfolios.py, lines 35–43</span><code>ALLOCATORS = (
+&quot;equal_weight&quot;,
+&quot;inverse_vol&quot;,
+&quot;min_variance&quot;,
+&quot;max_sharpe&quot;,
+&quot;risk_parity&quot;,
+&quot;max_diversification&quot;,
+&quot;hrp&quot;,
+)</code></span></a><span>allocators</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/portfolio-optimizer/blob/467106270e524d31ceaa738d5f5eeaaf819e6121/portlib/covariance.py#L29" target="_blank" rel="noopener"><b>6</b><span class="sr-only"> (source: portlib/covariance.py, line 29)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">portlib/covariance.py, line 29</span><code>ESTIMATORS = (&quot;sample&quot;, &quot;ledoit_wolf&quot;, &quot;oas&quot;, &quot;ewma&quot;, &quot;single_factor&quot;, &quot;denoised&quot;)</code></span></a><span>covariance estimators</span></li>
         <li><b>~1e-10</b><span>KKT residual on every answer</span></li>
-        <li><b>72</b><span>tests</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/portfolio-optimizer/blob/467106270e524d31ceaa738d5f5eeaaf819e6121/README.md#L346" target="_blank" rel="noopener"><b>72</b><span class="sr-only"> (source: README.md, line 346)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">README.md, line 346</span><code>72 tests, ~16 seconds. Properties rather than golden numbers, because a golden number</code></span></a><span>tests</span></li>
       </ul>
+      <p class="cs-proof-note">Underlined numbers link to the line they come from.</p>
       <div class="cs-body">
         <nav class="cs-toc" aria-label="On this page">
           <p>Contents</p>
@@ -243,6 +252,6 @@ python3 run.py</code></pre>
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=8aa410e7"></script>
+  <script src="../assets/site.js?v=d04ec986"></script>
 </body>
 </html>

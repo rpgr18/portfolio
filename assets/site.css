@@ -627,6 +627,8 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
 .demo-stage { min-width: 0; padding: 24px; }
 .demo-stage .demo[hidden] { display: none; }
 .demo-stage .panel { padding: 0; border: 0; background: none; }
+.demo-share { display: block; min-height: 32px; margin: 20px 0 0 auto; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); font: 500 var(--fs-xs) var(--font); color: var(--text); cursor: pointer; }
+.demo-share:hover { border-color: var(--line-2); }
 .pick-now { display: none; }
 @media (max-width: 56rem) {
   /* Phones and tablets: the two demos become a row of tabs over the demo itself; the chosen
@@ -801,7 +803,25 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
 .cs-facts dd { margin-top: 5px; font-size: var(--fs-sm); line-height: 1.5; color: var(--text); }
 .cs-metrics { margin-top: 32px; padding-top: 26px; border-top: 1px solid var(--line); }
 .cs-metrics b { display: block; font: 400 var(--t-title)/1 var(--display); letter-spacing: -0.02em; color: var(--strong); font-variant-numeric: lining-nums; }
-.cs-metrics span { display: block; max-width: 15em; margin-top: 10px; font-size: var(--fs-sm); line-height: 1.45; color: var(--text-2); }
+.cs-metrics li > span { display: block; max-width: 15em; margin-top: 10px; font-size: var(--fs-sm); line-height: 1.45; color: var(--text-2); }
+/* Each number links to the line it comes from; hovering shows that line */
+.proof { position: relative; display: inline-block; color: inherit; text-decoration: none; outline: none; }
+.proof b { text-decoration: underline 1px; text-underline-offset: 0.12em; text-decoration-color: color-mix(in srgb, currentColor 25%, transparent); transition: text-decoration-color 0.3s var(--ease); }
+.proof:hover b, .proof:focus-visible b { text-decoration-color: currentColor; }
+.proof:focus-visible { outline: 2px solid var(--text); outline-offset: 6px; border-radius: 4px; }
+.proof-card {
+  position: absolute; left: 0; top: calc(100% + 12px); z-index: 12; display: grid; gap: 8px; width: max-content; max-width: min(340px, 80vw); padding: 12px 14px;
+  border-radius: 12px; background: var(--bg); box-shadow: 0 0 0 1px var(--line), 0 24px 48px -24px rgb(0 0 0 / 0.4);
+  visibility: hidden; opacity: 0; translate: 0 -4px; pointer-events: none;
+  transition: opacity 0.2s var(--ease), translate 0.4s var(--appear-ease, ease), visibility 0s 0.4s;
+}
+.proof:hover .proof-card, .proof:focus-visible .proof-card { visibility: visible; opacity: 1; translate: 0 0; transition: opacity 0.2s var(--ease) 0.06s, translate 0.4s var(--appear-ease, ease) 0.06s; }
+@media (hover: none) { .proof-card { display: none; } }
+.proof-src { font: 400 var(--fs-xs)/1.4 var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+.proof-card code { display: block; padding: 8px 10px; border-radius: 8px; background: var(--field); font: 400 var(--fs-xs)/1.5 var(--mono); color: var(--code); white-space: pre-wrap; overflow-wrap: anywhere; }
+.cs-metrics li:nth-child(4n) .proof-card { left: auto; right: 0; }
+.cs-proof-note { margin: 18px 0 0; font-size: var(--fs-sm); color: var(--muted); }
+.cs-proof-note a { color: var(--text-2); }
 
 .cs-body {
   display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gap);
@@ -836,6 +856,7 @@ html.theme-switching :is(.work-t, .cs-head h1, .cs-next-t) { view-transition-nam
 }
 @media (max-width: 56rem) {
   .cs-facts, .cs-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cs-metrics li:nth-child(2n) .proof-card { left: auto; right: 0; }
   .cs-facts .wide { grid-column: 1 / -1; }
   .cs-body { grid-template-columns: minmax(0, 1fr); }
   .cs-toc { display: none; }
@@ -911,12 +932,41 @@ html:has(.lb[open]) { overflow: hidden; }
 .run-it .btn-copy { position: absolute; right: 10px; bottom: 10px; min-height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); font: 500 var(--fs-xs) var(--font); color: var(--text); cursor: pointer; }
 .run-it .btn-copy:hover { border-color: var(--line-2); }
 
+/* Matching engine: the benchmark raced in this browser, on one scale with the native runs */
+.race { margin: 1.6em 0 1.1em; padding: 20px 20px 16px; border: 1px solid var(--line); border-radius: 14px; }
+.race-top { display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; }
+.race-h { margin: 0; font-weight: 500; color: var(--strong); }
+.btn-race {
+  min-height: 36px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--strong);
+  font: 500 var(--fs-sm) var(--font); color: var(--on-strong); cursor: pointer; transition: background 0.2s var(--ease);
+}
+.btn-race:hover { background: var(--btn-primary-hover); }
+.btn-race:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.btn-race:disabled { cursor: progress; opacity: 0.6; }
+.prose .race-bars { display: grid; gap: 14px; margin: 18px 0 0; padding: 0; list-style: none; }
+.prose .race-bars li::before { content: none; }
+.prose .race-bars li { padding-left: 0; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: var(--fs-sm); color: var(--text-2); }
+.race-bars code { font-size: 0.875em; }
+.race-v { font: 400 var(--fs-sm) var(--mono); font-variant-numeric: tabular-nums; color: var(--text); }
+.race-bars i {
+  grid-column: 1 / -1; height: 6px; border-radius: 999px;
+  background: linear-gradient(var(--bar, var(--muted)) 0 0) no-repeat 0 0 / calc(var(--v, 0) / var(--max, 1) * 100%) 100%, var(--field);
+  transition: background-size 0.9s var(--appear-ease, ease);
+}
+.prose .race-bars li.is-you { color: var(--strong); }
+.race-bars .is-you i { --bar: var(--strong); }
+.race-bars .is-you.is-map i { --bar: color-mix(in srgb, var(--strong) 35%, transparent); }
+.race.is-running .is-you i { animation: race-wait 1.2s var(--ease) infinite alternate; }
+@keyframes race-wait { to { opacity: 0.45; } }
+.race-note { margin: 16px 0 0; }
+@media (prefers-reduced-motion: reduce) { .race-bars i { transition: none; } .race.is-running .is-you i { animation: none; } }
+
 /* Print (⌘P): the page as a clean document; no bars, demos or controls */
 @media print {
   @page { margin: 16mm 14mm; }
   :root, :root[data-theme="dark"] { --bg: #fff; --text: #111; --text-2: #333; --muted: #555; --strong: #000; --line: #ccc; --line-2: #bbb; color-scheme: light; }
   html, body { background: #fff !important; }
-  .topbar, .skip-link, .toast, .cmd, .lb, #demos, .ed-actions, .hc, .cs-toc, .cs-next, .cs-back, .article-links, .run-it .btn-copy, [data-copy], .site-foot nav, .theme-toggle, .tb-cmd { display: none !important; }
+  .topbar, .skip-link, .toast, .cmd, .lb, #demos, .ed-actions, .hc, .cs-toc, .cs-next, .cs-back, .article-links, .run-it .btn-copy, [data-copy], .site-foot nav, .theme-toggle, .tb-cmd, .race { display: none !important; }
   .js :where(.ed-avatar, .ed-sentence, .ed-actions, .ed-facts, .ed-head, .ed-body, .works > li, .site-foot--home, .cs-head > *, .cs-cover, .cs-facts, .cs-metrics, .cs-body, .cs-next, .who-head, .lib > .who-zoom) { opacity: 1 !important; animation: none !important; -webkit-mask-image: none !important; mask-image: none !important; }
   .ed-section { padding-top: 22pt; break-inside: auto; }
   .ed-head { position: static; }

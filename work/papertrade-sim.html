@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=8aa410e7">
+  <link rel="stylesheet" href="../assets/site.css?v=d04ec986">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -96,10 +96,13 @@
         <div class="full"><dt>Outcome</dt><dd>Portfolios on real daily prices, behind a text menu and a Swing GUI over one model, with 273 JUnit tests.</dd></div>
       </dl>
       <ul class="cs-metrics" aria-label="Key numbers">
-        <li><b>273</b><span>JUnit tests</span></li>
-        <li><b>2</b><span>interfaces over one model</span></li>
-        <li><b>5</b><span>performance plot ranges</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/live-papertrade-sim-java/tree/3f2e68381547a8d6d5382c8556e8226ab6be7586/test" target="_blank" rel="noopener"><b>273</b><span class="sr-only"> (source: test/)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">test/</span><code>273 @Test methods in this folder</code></span></a><span>JUnit tests</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/live-papertrade-sim-java/blob/3f2e68381547a8d6d5382c8556e8226ab6be7586/src/mvc/StockProgram.java#L25-L39" target="_blank" rel="noopener"><b>2</b><span class="sr-only"> (source: src/mvc/StockProgram.java, lines 25–39)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">src/mvc/StockProgram.java, lines 25–39</span><code>GraphicsStockView view = new SimpleGraphicsStockView();
+…
+TextStockView view = new AdvancedTextStockView(ap);</code></span></a><span>interfaces over one model</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/live-papertrade-sim-java/blob/3f2e68381547a8d6d5382c8556e8226ab6be7586/src/mvc/DateRange.java#L10-L14" target="_blank" rel="noopener"><b>5</b><span class="sr-only"> (source: src/mvc/DateRange.java, lines 10–14)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">src/mvc/DateRange.java, lines 10–14</span><code>WEEK, MONTH, YEAR, FIVE_YEARS, TEN_YEARS</code></span></a><span>performance plot ranges</span></li>
       </ul>
+      <p class="cs-proof-note">Underlined numbers link to the line they come from.</p>
       <div class="cs-body">
         <nav class="cs-toc" aria-label="On this page">
           <p>Contents</p>
@@ -163,6 +166,6 @@
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=8aa410e7"></script>
+  <script src="../assets/site.js?v=d04ec986"></script>
 </body>
 </html>

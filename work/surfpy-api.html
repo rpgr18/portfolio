@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=8aa410e7">
+  <link rel="stylesheet" href="../assets/site.css?v=d04ec986">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -96,10 +96,14 @@
         <div class="full"><dt>Outcome</dt><dd>Wave forecasts, nearby buoys and tide predictions for any coordinate, from one API.</dd></div>
       </dl>
       <ul class="cs-metrics" aria-label="Key numbers">
-        <li><b>3</b><span>NOAA data sources</span></li>
-        <li><b>6</b><span>endpoints</span></li>
-        <li><b>2</b><span>regional wave models</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/surfpy-api/blob/7becad0b7c9ba7b3e8f96f06b647eec6bdbfaae6/README.md#L69" target="_blank" rel="noopener"><b>3</b><span class="sr-only"> (source: README.md, line 69)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">README.md, line 69</span><code>- **Data Sources**: NOAA GFS, NDBC Buoys, NOAA Tides &amp; Currents</code></span></a><span>NOAA data sources</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/surfpy-api/tree/7becad0b7c9ba7b3e8f96f06b647eec6bdbfaae6/app/routes" target="_blank" rel="noopener"><b>6</b><span class="sr-only"> (source: app/routes/)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">app/routes/</span><code>/api/forecast/&lt;lat&gt;/&lt;lon&gt;   /api/forecast/buoy/&lt;id&gt;
+/api/buoys/nearby/&lt;lat&gt;/&lt;lon&gt;   /api/buoys/&lt;id&gt;/data
+/api/tides/location   /api/tides/station/&lt;id&gt;</code></span></a><span>endpoints</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/surfpy-api/blob/7becad0b7c9ba7b3e8f96f06b647eec6bdbfaae6/app/routes/forecast_routes.py#L15-L18" target="_blank" rel="noopener"><b>2</b><span class="sr-only"> (source: app/routes/forecast_routes.py, lines 15–18)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">app/routes/forecast_routes.py, lines 15–18</span><code>us_west_coast_gfs_wave_model()
+atlantic_gfs_wave_model()</code></span></a><span>regional wave models</span></li>
       </ul>
+      <p class="cs-proof-note">Underlined numbers link to the line they come from.</p>
       <div class="cs-body">
         <nav class="cs-toc" aria-label="On this page">
           <p>Contents</p>
@@ -174,6 +178,6 @@
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=8aa410e7"></script>
+  <script src="../assets/site.js?v=d04ec986"></script>
 </body>
 </html>

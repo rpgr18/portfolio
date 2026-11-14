@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=8aa410e7">
+  <link rel="stylesheet" href="../assets/site.css?v=d04ec986">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -98,11 +98,14 @@
         <div class="full"><dt>Outcome</dt><dd>Faults detected at F1 0.60, about 100× faster than the classical pipeline; the seafloor horizon traced to a 5.6 m mean absolute error, 95.4% within ±15 m.</dd></div>
       </dl>
       <ul class="cs-metrics" aria-label="Key numbers">
-        <li><b>0.60</b><span>fault-detection F1</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/marine-seismic-deep-learning/blob/4d3514bbda8714a55e1d86e038a0cbb22c743e70/cnn/models/alpha/training_info.txt#L4-L6" target="_blank" rel="noopener"><b>0.60</b><span class="sr-only"> (source: cnn/models/alpha/training_info.txt, lines 4–6)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">cnn/models/alpha/training_info.txt, lines 4–6</span><code>Best F1: 0.596
+Precision: 0.566
+Recall: 0.625</code></span></a><span>fault-detection F1</span></li>
         <li><b>~100×</b><span>faster than the classical pipeline</span></li>
         <li><b>5.6 m</b><span>mean horizon error</span></li>
         <li><b>95.4%</b><span>of the horizon within ±15 m</span></li>
       </ul>
+      <p class="cs-proof-note">Underlined numbers link to the line they come from.</p>
       <div class="cs-body">
         <nav class="cs-toc" aria-label="On this page">
           <p>Contents</p>
@@ -231,6 +234,6 @@
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=8aa410e7"></script>
+  <script src="../assets/site.js?v=d04ec986"></script>
 </body>
 </html>

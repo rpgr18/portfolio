@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=8aa410e7">
+  <link rel="stylesheet" href="../assets/site.css?v=d04ec986">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -96,11 +96,12 @@
         <div class="full"><dt>Outcome</dt><dd>Seven pricing engines compared on one screen, with convergence measured instead of assumed: a plain binomial tree needs 4,096 steps to reach 1 bp, a smoothed one needs 32.</dd></div>
       </dl>
       <ul class="cs-metrics" aria-label="Key numbers">
-        <li><b>7</b><span>pricing engines</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/options-pricing/blob/5616357c539413bb6228330d013a99135cdcf031/README.md#L3" target="_blank" rel="noopener"><b>7</b><span class="sr-only"> (source: README.md, line 3)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">README.md, line 3</span><code>An interactive desktop workbench for equity option pricing: seven pricing engines</code></span></a><span>pricing engines</span></li>
         <li><b>15</b><span>analytic Greeks</span></li>
-        <li><b>4</b><span>volatility-surface fits</span></li>
-        <li><b>54</b><span>tests</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/options-pricing/blob/5616357c539413bb6228330d013a99135cdcf031/optlib/surface.py#L53" target="_blank" rel="noopener"><b>4</b><span class="sr-only"> (source: optlib/surface.py, line 53)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">optlib/surface.py, line 53</span><code>METHODS = (&quot;svi&quot;, &quot;ssvi&quot;, &quot;cubic&quot;, &quot;rbf&quot;)</code></span></a><span>volatility-surface fits</span></li>
+        <li><a class="proof" href="https://github.com/rpgr18/options-pricing/blob/5616357c539413bb6228330d013a99135cdcf031/README.md#L317" target="_blank" rel="noopener"><b>54</b><span class="sr-only"> (source: README.md, line 317)</span><span class="proof-card" aria-hidden="true"><span class="proof-src">README.md, line 317</span><code>54 tests, ~21 seconds. They are mostly *relationships* rather than golden numbers,</code></span></a><span>tests</span></li>
       </ul>
+      <p class="cs-proof-note">Underlined numbers link to the line they come from.</p>
       <div class="cs-body">
         <nav class="cs-toc" aria-label="On this page">
           <p>Contents</p>
@@ -239,6 +240,6 @@ python3 run.py</code></pre>
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=8aa410e7"></script>
+  <script src="../assets/site.js?v=d04ec986"></script>
 </body>
 </html>
