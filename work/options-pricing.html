@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=d04ec986">
+  <link rel="stylesheet" href="../assets/site.css?v=045a70bc">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -136,6 +136,21 @@
             </table>
             <p class="caption">RMSE in volatility points, 152 synthetic quotes across 10 expiries.</p>
           </div>
+          <div class="vsurf" id="vol-surface" data-src="../assets/data/vol-surface.json">
+            <div class="vsurf-top">
+              <p class="vsurf-h">Implied volatility surface</p>
+              <div class="seg" role="group" aria-label="Surface">
+                <button type="button" data-set="svi" aria-pressed="true">SVI</button>
+                <button type="button" data-set="ssvi" aria-pressed="false">SSVI</button>
+                <button type="button" data-set="cubic" aria-pressed="false">Cubic</button>
+                <button type="button" data-set="rbf" aria-pressed="false">RBF</button>
+                <button type="button" data-set="truth" aria-pressed="false">Truth</button>
+              </div>
+            </div>
+            <div class="vsurf-stage"><canvas tabindex="0" role="img" aria-label="3-D implied volatility surface"></canvas></div>
+            <p class="vsurf-read"></p>
+            <p class="caption vsurf-note" aria-live="polite"></p>
+          </div>
           <p>The cubic spline is a hundred times better than raw SVI in-sample and the worst of the four on held-out strikes. In-sample error isn’t a measure of quality, so the app always shows both.</p>
 
           <h2 id="how-its-tested">How it’s tested</h2>
@@ -240,6 +255,6 @@ python3 run.py</code></pre>
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=d04ec986"></script>
+  <script src="../assets/site.js?v=045a70bc"></script>
 </body>
 </html>

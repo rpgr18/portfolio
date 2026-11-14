@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=d04ec986">
+  <link rel="stylesheet" href="../assets/site.css?v=045a70bc">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -192,6 +192,7 @@
             </table>
             <p class="caption">Bid × ask one second before the close, against the official auction print.</p>
           </div>
+          <div class="tape" id="nasdaq-day" data-src="../assets/data/nasdaq/" hidden></div>
 
           <h2 id="limits">Limits</h2>
           <p>Each book runs on one thread by design, since matching is sequential per instrument; scaling comes from sharding symbols across threads. There’s no FIX or OUCH gateway, journal or recovery, the fast price array needs a bounded price band, and the ITCH handler has been run on one real day and rebuilds NASDAQ’s displayed books only.</p>
@@ -267,6 +268,6 @@ cmake -B build -G Ninja &amp;&amp; cmake --build build &amp;&amp; ctest --test-d
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=d04ec986"></script>
+  <script src="../assets/site.js?v=045a70bc"></script>
 </body>
 </html>

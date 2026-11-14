@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=d04ec986">
+  <link rel="stylesheet" href="../assets/site.css?v=045a70bc">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -148,6 +148,9 @@
             <p class="caption">Spread is the standard deviation of achieved Sharpe across trials.</p>
           </div>
           <p>Maximum Sharpe has the highest ceiling and the largest shortfall, with four times the spread of risk parity. Equal weight has a spread of exactly zero, because it uses no estimates.</p>
+          <figure class="fx" id="frontier-fig" data-src="../assets/data/frontier.json">
+            <figcaption>One five-year sample from the app’s default simulated universe. The dashed curve is the frontier the optimizer estimates; the green one is what the same portfolios earn under the true parameters. Gaps are averaged over the frontier’s portfolios. Set returns to true and only covariance error is left.</figcaption>
+          </figure>
 
           <h2 id="how-its-tested">How it’s tested</h2>
           <p>72 tests on properties rather than golden numbers. The walk-forward backtest is checked for lookahead by replacing every return after the final rebalance with garbage: every weight in the path has to stay bit-identical. Risk-parity contributions must equal 1/N to machine precision, which is the test that caught a budget-constraint bug in the first implementation.</p>
@@ -252,6 +255,6 @@ python3 run.py</code></pre>
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=d04ec986"></script>
+  <script src="../assets/site.js?v=045a70bc"></script>
 </body>
 </html>
