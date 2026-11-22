@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="assets/site.css?v=0f33dba8">
+  <link rel="stylesheet" href="assets/site.css?v=117d26cf">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -70,7 +70,7 @@
           <li><a class="nav-link" href="index.html#experience" data-key="3">Experience</a></li>
           <li><a class="nav-link" href="index.html#stack" data-key="4">Stack</a></li>
           <li><a class="nav-link" href="index.html#contact" data-key="5">Contact</a></li>
-          <li><a class="nav-link" href="whoami.html" data-key="6" aria-current="page">whoami</a></li>
+          <li><a class="nav-link" href="whoami.html" data-key="6" aria-current="page"><span class="nav-dollar" aria-hidden="true">$ </span>whoami</a></li>
         </ul>
       </nav>
       <button class="tb-btn theme-toggle" type="button" aria-label="Switch to dark theme"><svg class="i-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="i-sun" aria-hidden="true"><use href="#i-sun"/></svg></button>
@@ -79,28 +79,48 @@
   </header>
 
   <div class="page">
-    <main class="cs who" id="main" tabindex="-1">
-      <header class="who-head">
-        <p class="who-label">$ whoami</p>
-        <h1>Ryan Greene</h1>
+    <main class="who" id="main" tabindex="-1">
+      <!-- No words on this page: it opens on the photo of me, set in like a print, and the rest of the
+           photos follow, one to a screen. The heading is there for screen readers only. -->
+      <header class="who-hero">
+        <h1 class="sr-only">whoami</h1>
+        <div class="who-frame">
+          <img src="img/whoami/beach-surfer-2000.webp" srcset="img/whoami/beach-surfer-800.webp 800w, img/whoami/beach-surfer-1600.webp 1600w, img/whoami/beach-surfer-2000.webp 2000w" sizes="100vw" alt="A surfer in a wetsuit walking along an empty beach with a board under one arm" width="2000" height="1125" fetchpriority="high" decoding="async">
+        </div>
       </header>
-
-      <!-- The photos, in rows that fill the width: every photo in a row shares its height, and
-           --ar (width / height) sets how much room it takes. Each comes in 800, 1600 and 2000 px
-           wide webp files in img/whoami/, and any of them opens full screen (site.js). -->
-      <section class="lib" aria-label="Photos">
-        <button class="who-zoom" type="button" data-i="0" style="--ar: 2000 / 1125"><img src="img/whoami/beach-surfer-1600.webp" srcset="img/whoami/beach-surfer-800.webp 800w, img/whoami/beach-surfer-1600.webp 1600w, img/whoami/beach-surfer-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 34vw" alt="A surfer in a wetsuit walking along an empty beach with a board under one arm" width="2000" height="1125" fetchpriority="high" decoding="async"></button>
-        <button class="who-zoom" type="button" data-i="1" style="--ar: 2000 / 1333"><img src="img/whoami/highland-cow-1600.webp" srcset="img/whoami/highland-cow-800.webp 800w, img/whoami/highland-cow-1600.webp 1600w, img/whoami/highland-cow-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 34vw" alt="A Highland cow behind a wire fence in a misty green valley" width="2000" height="1333" fetchpriority="high" decoding="async"></button>
-        <button class="who-zoom" type="button" data-i="2" style="--ar: 2000 / 1125"><img src="img/whoami/reef-boat-1600.webp" srcset="img/whoami/reef-boat-800.webp 800w, img/whoami/reef-boat-1600.webp 1600w, img/whoami/reef-boat-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 34vw" alt="Surfers waiting at a reef break, seen from the bow of a boat" width="2000" height="1125" fetchpriority="high" decoding="async"></button>
-        <button class="who-zoom" type="button" data-i="3" style="--ar: 2000 / 1250"><img src="img/whoami/kea-1600.webp" srcset="img/whoami/kea-800.webp 800w, img/whoami/kea-1600.webp 1600w, img/whoami/kea-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 34vw" alt="A kea calling from a snowy ledge in front of mountains" width="2000" height="1250" loading="lazy" decoding="async"></button>
-        <button class="who-zoom" type="button" data-i="4" style="--ar: 2000 / 1250"><img src="img/whoami/coast-cliffs-1600.webp" srcset="img/whoami/coast-cliffs-800.webp 800w, img/whoami/coast-cliffs-1600.webp 1600w, img/whoami/coast-cliffs-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 34vw" alt="Layered sea cliffs above a grey, wave-lined ocean" width="2000" height="1250" loading="lazy" decoding="async"></button>
-        <button class="who-zoom" type="button" data-i="5" style="--ar: 2000 / 1250"><img src="img/whoami/sandstone-cloister-1600.webp" srcset="img/whoami/sandstone-cloister-800.webp 800w, img/whoami/sandstone-cloister-1600.webp 1600w, img/whoami/sandstone-cloister-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 34vw" alt="Late sun through the arches of a sandstone cloister" width="2000" height="1250" loading="lazy" decoding="async"></button>
-        <button class="who-zoom" type="button" data-i="6" style="--ar: 2000 / 1333"><img src="img/whoami/mountain-plain-1600.webp" srcset="img/whoami/mountain-plain-800.webp 800w, img/whoami/mountain-plain-1600.webp 1600w, img/whoami/mountain-plain-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 34vw" alt="Snow-dusted mountains rising behind a dry, scrubby plain" width="2000" height="1333" loading="lazy" decoding="async"></button>
-        <button class="who-zoom" type="button" data-i="7" style="--ar: 2000 / 1333"><img src="img/whoami/river-valley-1600.webp" srcset="img/whoami/river-valley-800.webp 800w, img/whoami/river-valley-1600.webp 1600w, img/whoami/river-valley-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 34vw" alt="Sunlight across a braided river valley below snowy peaks" width="2000" height="1333" loading="lazy" decoding="async"></button>
-        <button class="who-zoom" type="button" data-i="8" style="--ar: 2000 / 1250"><img src="img/whoami/roadside-stop-1600.webp" srcset="img/whoami/roadside-stop-800.webp 800w, img/whoami/roadside-stop-1600.webp 1600w, img/whoami/roadside-stop-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 34vw" alt="Three friends at the back of a loaded truck on a desert track above the sea" width="2000" height="1250" loading="lazy" decoding="async"></button>
-        <button class="who-zoom" type="button" data-i="9" style="--ar: 2000 / 1333"><img src="img/whoami/dirt-road-1600.webp" srcset="img/whoami/dirt-road-800.webp 800w, img/whoami/dirt-road-1600.webp 1600w, img/whoami/dirt-road-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 34vw" alt="A sandy track through scrubland, seen past a truck’s side mirror" width="2000" height="1333" loading="lazy" decoding="async"></button>
-        <button class="who-zoom" type="button" data-i="10" style="--ar: 2000 / 1333"><img src="img/whoami/window-truck-1600.webp" srcset="img/whoami/window-truck-800.webp 800w, img/whoami/window-truck-1600.webp 1600w, img/whoami/window-truck-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 34vw" alt="Black and white: a truck with boards on the roof, framed by a curtained window" width="2000" height="1333" loading="lazy" decoding="async"></button>
-      </section>
+      <!-- The photos, one to a screen: each sits centred in its own "room" at the largest size that fits
+           (--ar is its width / height). Scrolling settles on each in turn.
+           Each comes in 800, 1600 and 2000 px wide webp files in img/whoami/. -->
+      <figure class="room" style="--ar: 2000 / 1333">
+        <img src="img/whoami/highland-cow-1600.webp" srcset="img/whoami/highland-cow-800.webp 800w, img/whoami/highland-cow-1600.webp 1600w, img/whoami/highland-cow-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 82vw" alt="A Highland cow behind a wire fence in a misty green valley" width="2000" height="1333" loading="lazy" decoding="async">
+      </figure>
+      <figure class="room" style="--ar: 2000 / 1125">
+        <img src="img/whoami/reef-boat-1600.webp" srcset="img/whoami/reef-boat-800.webp 800w, img/whoami/reef-boat-1600.webp 1600w, img/whoami/reef-boat-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 82vw" alt="Surfers waiting at a reef break, seen from the bow of a boat" width="2000" height="1125" loading="lazy" decoding="async">
+      </figure>
+      <figure class="room" style="--ar: 2000 / 1250">
+        <img src="img/whoami/kea-1600.webp" srcset="img/whoami/kea-800.webp 800w, img/whoami/kea-1600.webp 1600w, img/whoami/kea-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 82vw" alt="A kea calling from a snowy ledge in front of mountains" width="2000" height="1250" loading="lazy" decoding="async">
+      </figure>
+      <figure class="room" style="--ar: 2000 / 1250">
+        <img src="img/whoami/coast-cliffs-1600.webp" srcset="img/whoami/coast-cliffs-800.webp 800w, img/whoami/coast-cliffs-1600.webp 1600w, img/whoami/coast-cliffs-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 82vw" alt="Layered sea cliffs above a grey, wave-lined ocean" width="2000" height="1250" loading="lazy" decoding="async">
+      </figure>
+      <figure class="room" style="--ar: 2000 / 1250">
+        <img src="img/whoami/sandstone-cloister-1600.webp" srcset="img/whoami/sandstone-cloister-800.webp 800w, img/whoami/sandstone-cloister-1600.webp 1600w, img/whoami/sandstone-cloister-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 82vw" alt="Late sun through the arches of a sandstone cloister" width="2000" height="1250" loading="lazy" decoding="async">
+      </figure>
+      <figure class="room" style="--ar: 2000 / 1333">
+        <img src="img/whoami/mountain-plain-1600.webp" srcset="img/whoami/mountain-plain-800.webp 800w, img/whoami/mountain-plain-1600.webp 1600w, img/whoami/mountain-plain-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 82vw" alt="Snow-dusted mountains rising behind a dry, scrubby plain" width="2000" height="1333" loading="lazy" decoding="async">
+      </figure>
+      <figure class="room" style="--ar: 2000 / 1333">
+        <img src="img/whoami/river-valley-1600.webp" srcset="img/whoami/river-valley-800.webp 800w, img/whoami/river-valley-1600.webp 1600w, img/whoami/river-valley-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 82vw" alt="Sunlight across a braided river valley below snowy peaks" width="2000" height="1333" loading="lazy" decoding="async">
+      </figure>
+      <figure class="room" style="--ar: 2000 / 1250">
+        <img src="img/whoami/roadside-stop-1600.webp" srcset="img/whoami/roadside-stop-800.webp 800w, img/whoami/roadside-stop-1600.webp 1600w, img/whoami/roadside-stop-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 82vw" alt="Three friends at the back of a loaded truck on a desert track above the sea" width="2000" height="1250" loading="lazy" decoding="async">
+      </figure>
+      <figure class="room" style="--ar: 2000 / 1333">
+        <img src="img/whoami/dirt-road-1600.webp" srcset="img/whoami/dirt-road-800.webp 800w, img/whoami/dirt-road-1600.webp 1600w, img/whoami/dirt-road-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 82vw" alt="A sandy track through scrubland, seen past a truck’s side mirror" width="2000" height="1333" loading="lazy" decoding="async">
+      </figure>
+      <figure class="room" style="--ar: 2000 / 1333">
+        <img src="img/whoami/window-truck-1600.webp" srcset="img/whoami/window-truck-800.webp 800w, img/whoami/window-truck-1600.webp 1600w, img/whoami/window-truck-2000.webp 2000w" sizes="(max-width: 40rem) 100vw, 82vw" alt="Black and white: a truck with boards on the roof, framed by a curtained window" width="2000" height="1333" loading="lazy" decoding="async">
+      </figure>
     </main>
 
     <footer class="site-foot site-foot--home">
@@ -114,6 +134,6 @@
     </footer>
   </div>
 
-  <script src="assets/site.js?v=0f33dba8"></script>
+  <script src="assets/site.js?v=117d26cf"></script>
 </body>
 </html>

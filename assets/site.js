@@ -92,8 +92,8 @@ function blackScholes(S, K, T, sigma, r) {
   if (!reduceMotion && 'IntersectionObserver' in window) {
     document.documentElement.classList.add('motion');
     const appearing = document.querySelectorAll([
-      '.ed-avatar', '.ed-sentence', '.ed-actions', '.ed-facts', '.ed-head', '.ed-body', '.works > li', '.site-foot--home',
-      '.cs-head > *', '.cs-cover', '.cs-facts', '.cs-metrics', '.cs-body', '.cs-next', '.who-head', '.lib > .who-zoom',
+      '.ed-avatar', '.ed-sentence', '.ed-actions', '.ed-head', '.ed-body', '.works > li', '.site-foot--home',
+      '.cs-head > *', '.cs-cover', '.cs-facts', '.cs-metrics', '.cs-body', '.cs-next', '.who-hero', '.room',
     ].join(','));
     const loadedAt = performance.now();
     const onScreen = (node) => {
@@ -429,145 +429,31 @@ function blackScholes(S, K, T, sigma, r) {
     if (slug) nameTitle(document.querySelector(`a.work[href="work/${slug}.html"] .work-t`), slug);
   });
 
-  // ---------- whoami: rows of photos that fill the width ----------
-  // Photos go into a row until it's full at about the target height; the row then ends either there
-  // or one photo earlier, whichever lands nearer the target, and is scaled to span the width exactly.
-  // The last row keeps the target height rather than stretching. (Without JS, flex does a rougher job.)
-  const lib = document.querySelector('.lib');
-  if (lib) {
-    const items = [...lib.querySelectorAll('.who-zoom')];
-    const ratios = items.map((b) => { const i = b.querySelector('img'); return i.getAttribute('width') / i.getAttribute('height'); });
-    const justify = () => {
-      const W = lib.clientWidth - 0.5, gap = parseFloat(getComputedStyle(lib).columnGap) || 0;
-      const target = W < 600 ? W * 0.46 : Math.min(300, Math.max(140, W * 0.21));   // phones: one or two to a row
-      const fit = (n, sum) => (W - gap * (n - 1)) / sum;
-      const set = (row, h) => row.forEach((i) => { items[i].style.width = `${ratios[i] * h}px`; items[i].style.height = `${h}px`; });
-      let row = [], sum = 0;
-      items.forEach((_, i) => {
-        row.push(i); sum += ratios[i];
-        const h = fit(row.length, sum);
-        if (h > target) return;
-        const before = row.length > 1 ? fit(row.length - 1, sum - ratios[i]) : Infinity;
-        if (Math.abs(before - target) < Math.abs(h - target)) { row.pop(); set(row, before); row = [i]; sum = ratios[i]; }
-        else { set(row, h); row = []; sum = 0; }
-      });
-      if (row.length) set(row, Math.min(target, fit(row.length, sum)));
-      lib.classList.add('is-justified');
-    };
-    new ResizeObserver(justify).observe(lib);
-  }
-
-  // ---------- whoami: any photo opens full screen ----------
-  // The photo lifts out of its place in the rows and glides to full size while the page fades to its
-  // own background; closing sends it back to where it came from. Arrow keys, the buttons or a swipe
-  // move between photos; Esc, the X or a click beside the photo closes it. Buttons that share a
-  // data-i are copies of one photo (a layout may show a photo more than once).
-  const zooms = [...document.querySelectorAll('.who-zoom')];
-  if (zooms.length) {
-    const lb = document.createElement('dialog');
-    lb.className = 'lb';
-    lb.setAttribute('aria-label', 'Photo, full screen');
-    lb.innerHTML = '<div class="lb-bg"></div>'
-      + '<div class="lb-bar"><span class="lb-n" aria-live="polite"></span><button class="lb-x" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></button></div>'
-      + '<div class="lb-stage"><img alt="" decoding="async"></div>'
-      + '<div class="lb-foot"><div class="lb-strip" role="group" aria-label="All photos"></div><div class="lb-nav"><button class="lb-prev" type="button" aria-label="Previous photo"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button><button class="lb-next" type="button" aria-label="Next photo"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button></div></div>';
-    document.body.append(lb);
-    const bg = lb.querySelector('.lb-bg'), big = lb.querySelector('.lb-stage img'), label = lb.querySelector('.lb-n');
-    const chrome = [lb.querySelector('.lb-bar'), lb.querySelector('.lb-foot')];
-    const keyOf = (z) => z.dataset.i ?? String(zooms.indexOf(z));
-    const firsts = new Map();
-    zooms.forEach((z) => { if (!firsts.has(keyOf(z))) firsts.set(keyOf(z), z.querySelector('img')); });
-    const keys = [...firsts.keys()].sort((a, b) => a - b);
-    const thumbs = keys.map((k) => firsts.get(k));
-    const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
-    let cur = 0, from = null, busy = false;
-    // A strip of every photo along the bottom, like a contact sheet: the current one stands out
-    const strip = lb.querySelector('.lb-strip');
-    const cells = thumbs.map((t, i) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.setAttribute('aria-label', `Photo ${i + 1}: ${t.alt}`);
-      b.innerHTML = `<img src="${t.getAttribute('src').replace(/-\d+\.webp$/, '-800.webp')}" alt="" loading="lazy" decoding="async">`;
-      b.addEventListener('click', () => { if (i !== cur && !busy) { const d = i > cur ? 1 : -1; show(i); if (!reduceMotion) big.animate([{ opacity: 0, transform: `translateX(${d * 28}px)` }, { opacity: 1, transform: 'none' }], { duration: 420, easing: EASE }); } });
-      strip.append(b);
-      return b;
-    });
-    const show = (i) => {
-      cur = (i + thumbs.length) % thumbs.length;
-      const t = thumbs[cur], want = cur;
-      big.src = t.currentSrc || t.src;   // the copy the page already has, so it's there at once...
-      big.alt = t.alt;
-      label.textContent = `${cur + 1} / ${thumbs.length}`;
-      cells.forEach((c, j) => (j === cur ? c.setAttribute('aria-current', 'true') : c.removeAttribute('aria-current')));
-      const c = cells[cur], sl = strip.scrollLeft, w = strip.clientWidth;
-      if (c.offsetLeft < sl || c.offsetLeft + c.offsetWidth > sl + w) strip.scrollTo({ left: c.offsetLeft - (w - c.offsetWidth) / 2, behavior: reduceMotion ? 'auto' : 'smooth' });
-      const sharp = new Image();         // ...and the sharpest size for the screen once it has loaded
-      sharp.sizes = '100vw'; sharp.srcset = t.getAttribute('srcset') || ''; sharp.src = t.getAttribute('src');
-      sharp.decode().then(() => { if (cur === want && lb.open) big.src = sharp.currentSrc || sharp.src; }).catch(() => {});
-      [cur - 1, cur + 1].forEach((j) => { const n = thumbs[(j + thumbs.length) % thumbs.length]; if (n.loading === 'lazy') n.loading = 'eager'; });
-    };
-    // The transform that puts the full-screen photo exactly over `el` on the page
-    const over = (el) => {
-      const a = el.getBoundingClientRect(), b = big.getBoundingClientRect();
-      return `translate(${a.left - b.left}px, ${a.top - b.top}px) scale(${a.width / b.width})`;
-    };
-    const fade = (el, from, to, o) => el.animate([{ opacity: from }, { opacity: to }], { easing: 'ease', fill: 'both', ...o });
-    const open = async (i, z) => {
-      if (busy || lb.open) return;
-      busy = true; from = z;
-      show(i);
-      big.style.opacity = 0;
-      lb.showModal();
-      const fades = [fade(bg, 0, 1, { duration: 420 }), ...chrome.map((c) => fade(c, 0, 1, { duration: 300, delay: 240 }))];
-      await big.decode?.().catch(() => {});
-      big.style.opacity = '';
-      if (!reduceMotion) {
-        z.style.visibility = 'hidden';
-        await big.animate([{ transform: over(z) }, { transform: 'none' }], { duration: 620, easing: EASE }).finished.catch(() => {});
-        z.style.visibility = '';
-      }
-      fades.forEach((f) => f.cancel());
-      busy = false;
-    };
-    const close = async () => {
-      if (!lb.open || busy) return;
-      busy = true;
-      const back = from && keyOf(from) === keys[cur] ? from : thumbs[cur].closest('.who-zoom');
-      const r = back.getBoundingClientRect(), onScreen = r.bottom > 0 && r.top < innerHeight;
-      if (!reduceMotion) {
-        chrome.forEach((c) => fade(c, 1, 0, { duration: 160 }));
-        fade(bg, 1, 0, { duration: 420, delay: 60 });
-        if (onScreen) back.style.visibility = 'hidden';
-        const end = onScreen ? [{ transform: 'none' }, { transform: over(back) }] : [{ opacity: 1 }, { opacity: 0, transform: 'translateY(16px) scale(0.97)' }];
-        await big.animate(end, { duration: onScreen ? 560 : 300, easing: EASE, fill: 'forwards' }).finished.catch(() => {});
-      }
-      lb.close();
-      back.style.visibility = '';
-      [big, bg, ...chrome].forEach((el) => el.getAnimations().forEach((x) => x.cancel()));
-      busy = false;
-    };
-    const step = (d) => {
-      if (busy) return;
-      show(cur + d);
-      if (!reduceMotion) big.animate([{ opacity: 0, transform: `translateX(${d * 28}px)` }, { opacity: 1, transform: 'none' }], { duration: 420, easing: EASE });
-    };
-    zooms.forEach((z) => z.addEventListener('click', () => open(keys.indexOf(keyOf(z)), z)));
-    lb.querySelector('.lb-x').addEventListener('click', close);
-    lb.querySelector('.lb-prev').addEventListener('click', () => step(-1));
-    lb.querySelector('.lb-next').addEventListener('click', () => step(1));
-    lb.addEventListener('cancel', (e) => { e.preventDefault(); close(); });   // Esc, with the animation
-    lb.addEventListener('click', (e) => { if (e.target === lb || e.target === bg || e.target.classList.contains('lb-stage')) close(); });
-    lb.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
-      if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
-    });
-    // Swipe sideways on touch screens
-    let sx = null;
-    lb.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') sx = e.clientX; });
-    lb.addEventListener('pointerup', (e) => {
-      if (sx === null) return;
-      const dx = e.clientX - sx; sx = null;
-      if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+  // ---------- whoami: a quiet room, one photo to a screen ----------
+  if (document.body.dataset.page === 'whoami') {
+    // The top bar steps aside while you scroll down, and comes back as soon as you scroll up
+    // (or open the menu); it stays put over the heading
+    let lastY = scrollY;
+    addEventListener('scroll', () => {
+      const y = scrollY, down = y > lastY;
+      if (Math.abs(y - lastY) < 6) return;
+      topbar?.classList.toggle('is-away', down && y > innerHeight * 0.5 && !topbar.classList.contains('is-open'));
+      lastY = y;
+    }, { passive: true });
+    // The up and down arrows step from photo to photo
+    const rooms = [...document.querySelectorAll('.room')];
+    addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || e.defaultPrevented) return;
+      if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable], dialog')) return;
+      const mid = innerHeight / 2;
+      const centre = (r) => { const b = r.getBoundingClientRect(); return b.top + b.height / 2; };
+      const next = e.key === 'ArrowDown'
+        ? rooms.find((r) => centre(r) > mid + 8)
+        : rooms.findLast((r) => centre(r) < mid - 8);
+      if (!next) return;
+      e.preventDefault();
+      next.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
     });
   }
 
@@ -642,7 +528,6 @@ function blackScholes(S, K, T, sigma, r) {
     const k = e.key.toLowerCase();
     const typing = e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]');
     if (((e.metaKey || e.ctrlKey) && k === 'k') || (k === '/' && !typing && !e.metaKey && !e.ctrlKey && !e.altKey)) {
-      if (document.querySelector('.lb[open]')) return;
       e.preventDefault();
       if (palette?.open) palette.close(); else openPalette();
     }
@@ -1910,7 +1795,7 @@ function blackScholes(S, K, T, sigma, r) {
   addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
     if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
-    if (document.querySelector('.lb[open], .cmd[open]')) return;
+    if (document.querySelector('.cmd[open]')) return;
     if (e.key === 't' || e.key === 'T') { e.preventDefault(); toggleTheme(); return; }
     const link = links.find((a) => a.dataset.key === e.key);
     if (!link) return;

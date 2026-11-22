@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
-  <link rel="stylesheet" href="../assets/site.css?v=0f33dba8">
+  <link rel="stylesheet" href="../assets/site.css?v=117d26cf">
   <script>
     // Runs before first paint: mark JS as available and apply a saved dark theme without a flash of white
     document.documentElement.classList.add('js');
@@ -70,7 +70,7 @@
           <li><a class="nav-link" href="../index.html#experience" data-key="3">Experience</a></li>
           <li><a class="nav-link" href="../index.html#stack" data-key="4">Stack</a></li>
           <li><a class="nav-link" href="../index.html#contact" data-key="5">Contact</a></li>
-          <li><a class="nav-link" href="../whoami.html" data-key="6">whoami</a></li>
+          <li><a class="nav-link" href="../whoami.html" data-key="6"><span class="nav-dollar" aria-hidden="true">$ </span>whoami</a></li>
         </ul>
       </nav>
       <button class="tb-btn theme-toggle" type="button" aria-label="Switch to dark theme"><svg class="i-moon" aria-hidden="true"><use href="#i-moon"/></svg><svg class="i-sun" aria-hidden="true"><use href="#i-sun"/></svg></button>
@@ -82,12 +82,12 @@
     <main class="cs" id="main" tabindex="-1">
       <header class="cs-head">
         <a class="cs-back" href="../index.html#projects"><svg aria-hidden="true"><use href="#i-arrow"/></svg>Projects</a>
-        <p class="cs-index"><span>2026</span></p>
+        <p class="cs-index"><span>01 / 07</span><span>2026</span></p>
         <h1 style="view-transition-name: t-matching-engine">Matching Engine</h1>
         <p class="cs-lede">A price-time priority limit order book in C++20, fuzzed against a reference model, with a NASDAQ ITCH 5.0 feed handler and a live demo that runs in your browser.</p>
       </header>
       <figure class="cs-cover">
-        <img class="visual cover" src="../img/matching-engine/hero.webp?v=2" alt="The live order book in the matching engine’s browser demo: asks in red above bids in green, with a spread of 0.01" width="1730" height="900" fetchpriority="high">
+        <img class="visual cover" src="../img/matching-engine/hero.webp" alt="The live order book in the matching engine’s browser demo: asks in red above bids in green, with a spread of 0.01" width="2000" height="1045" fetchpriority="high">
       </figure>
       <dl class="cs-facts">
         <div><dt>Type</dt><dd>Open source, MIT</dd></div>
@@ -166,14 +166,14 @@
             <p class="caption race-note" aria-live="polite">The same C++ and the same order flow, compiled to WebAssembly and run on your machine: a million requests, best of three. The native runs replay five million.</p>
           </div>
           <figure class="chart">
-            <img class="only-light" src="../img/matching-engine/throughput-light.svg?v=2" alt="Bar chart of throughput by storage design for four workloads; the dense ladder with the flat index is fastest on all four" width="928" height="504" loading="lazy">
-            <img class="only-dark" src="../img/matching-engine/throughput-dark.svg?v=2" alt="" width="928" height="504" loading="lazy">
+            <img class="only-light" src="../img/matching-engine/throughput-light.svg" alt="Bar chart of throughput by storage design for four workloads; the dense ladder with the flat index is fastest on all four" width="928" height="504" loading="lazy">
+            <img class="only-dark" src="../img/matching-engine/throughput-dark.svg" alt="" width="928" height="504" loading="lazy">
             <figcaption>The index matters as much as the ladder. Swapping the flat table for <code>std::unordered_map</code>, which allocates a node per order and chases a pointer on every lookup, costs about as much as swapping the price array for a red-black tree.</figcaption>
           </figure>
           <p>With a million resting orders the book no longer fits in cache, and a cancel becomes a chain of dependent cache misses. A batched replay hides them with a software pipeline: while request <em>i</em> runs, it is already fetching the index slot for request <em>i</em>+16, the order for <em>i</em>+10, and its queue neighbours for <em>i</em>+4. That costs about a third of throughput while the book is small and wins 50–79% at a million orders, so the engine measures the book every 1,024 requests and only prefetches above 262,144 resting orders.</p>
           <figure class="chart">
-            <img class="only-light" src="../img/matching-engine/prefetch-light.svg?v=2" alt="Line chart of throughput against the number of resting orders with prefetching off and on; prefetching wins past about 200,000 orders" width="720" height="330" loading="lazy">
-            <img class="only-dark" src="../img/matching-engine/prefetch-dark.svg?v=2" alt="" width="720" height="330" loading="lazy">
+            <img class="only-light" src="../img/matching-engine/prefetch-light.svg" alt="Line chart of throughput against the number of resting orders with prefetching off and on; prefetching wins past about 200,000 orders" width="720" height="330" loading="lazy">
+            <img class="only-dark" src="../img/matching-engine/prefetch-dark.svg" alt="" width="720" height="330" loading="lazy">
             <figcaption>Prefetching only pays once the book outgrows the cache, so the default switches it on adaptively.</figcaption>
           </figure>
           <p>It also runs as a service: a gateway thread, the engine and a drop-copy thread connected by lock-free single-producer, single-consumer rings. Latency is charged from each request’s <em>scheduled</em> send time, so a stall can’t hide by delaying the requests behind it. Publishing once per batch instead of once per request raised the M2’s sustainable rate from 2M to 5M requests a second; the EPYC sustains 10M at a 0.21 µs median.</p>
@@ -252,7 +252,7 @@ cmake -B build -G Ninja &amp;&amp; cmake --build build &amp;&amp; ctest --test-d
         </article>
       </div>
       <a class="cs-next" href="marine-seismic.html">
-        <span class="cs-next-label">Next project</span>
+        <span class="cs-next-label">Next project · 02</span>
         <span class="cs-next-t">Marine Seismic Deep Learning</span>
         <svg aria-hidden="true"><use href="#i-arrow"/></svg>
       </a>
@@ -268,6 +268,6 @@ cmake -B build -G Ninja &amp;&amp; cmake --build build &amp;&amp; ctest --test-d
     </footer>
   </div>
 
-  <script src="../assets/site.js?v=0f33dba8"></script>
+  <script src="../assets/site.js?v=117d26cf"></script>
 </body>
 </html>
